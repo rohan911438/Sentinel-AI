@@ -17,6 +17,25 @@ const mime = {
   '.ico': 'image/x-icon'
 }
 
+const routes = {
+  '/': 'static.html',
+  '/index.html': 'static.html',
+  '/dashboard': 'dashboard.html',
+  '/dashboard.html': 'dashboard.html',
+  '/committee': 'committee.html',
+  '/committee.html': 'committee.html',
+  '/portfolio': 'portfolio.html',
+  '/portfolio.html': 'portfolio.html',
+  '/strategy-builder': 'strategy-builder.html',
+  '/strategy-builder.html': 'strategy-builder.html',
+  '/transactions': 'transactions.html',
+  '/transactions.html': 'transactions.html',
+  '/governance': 'governance.html',
+  '/governance.html': 'governance.html',
+  '/settings': 'settings.html',
+  '/settings.html': 'settings.html'
+}
+
 function sendFile(filePath, res) {
   fs.readFile(filePath, (error, content) => {
     if (error) {
@@ -34,13 +53,8 @@ function sendFile(filePath, res) {
 const server = http.createServer((req, res) => {
   const urlPath = decodeURIComponent((req.url || '/').split('?')[0])
 
-  if (urlPath === '/' || urlPath === '/index.html') {
-    sendFile(path.join(root, 'static.html'), res)
-    return
-  }
-
-  if (urlPath === '/dashboard' || urlPath === '/dashboard.html') {
-    sendFile(path.join(root, 'dashboard.html'), res)
+  if (routes[urlPath]) {
+    sendFile(path.join(root, routes[urlPath]), res)
     return
   }
 
