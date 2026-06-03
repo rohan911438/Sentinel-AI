@@ -77,6 +77,7 @@
                   <div><label>Preferred Assets</label><p>ETH, BTC, USDC, AAVE</p></div>
                 </div>
               </div>
+              <button id="generate-btn" class="button primary cta-button" style="margin-top: 20px;">Generate Strategy</button>
             </div>
 
             <!-- Center Panel -->
@@ -175,6 +176,56 @@
 
     closeModal.addEventListener('click', () => {
       modal.classList.remove('show');
+    });
+
+    const generateBtn = document.getElementById('generate-btn');
+    const workspaceList = document.querySelector('.stack-list');
+    
+    generateBtn.addEventListener('click', async () => {
+      generateBtn.innerText = 'Processing...';
+      generateBtn.disabled = true;
+      workspaceList.innerHTML = '<div class="agent-thinking-card"><div class="agent-thinking-head"><strong>System</strong><span class="thinking-loader"></span></div><p>Connecting to Debate Engine...</p></div>';
+
+      try {
+        const res = await fetch('http://127.0.0.1:3000/api/debate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ investmentAmount: 500000, riskLevel: 'moderate', investmentHorizon: '6 months' })
+        });
+        const data = await res.json();
+        
+        // Simulate streaming timeline
+        workspaceList.innerHTML = '';
+        for (const event of data.timeline) {
+          workspaceList.innerHTML += `
+            <div class="agent-thinking-card" style="animation: fade-in 0.3s ease;">
+              <div class="agent-thinking-head"><strong>${event.agent} (${event.action})</strong></div>
+              <p>${event.reason}</p>
+            </div>
+          `;
+          await new Promise(r => setTimeout(r, 600));
+        }
+
+        // Update allocations
+        document.querySelector('.allocation-card').innerHTML = `
+          <div class="alloc-row"><span><i class="dot blue"></i> ETH</span><strong>${data.decision.finalAllocation.ETH}%</strong></div>
+          <div class="alloc-row"><span><i class="dot green"></i> BTC</span><strong>${data.decision.finalAllocation.BTC}%</strong></div>
+          <div class="alloc-row"><span><i class="dot amber"></i> USDC</span><strong>${data.decision.finalAllocation.USDC}%</strong></div>
+          <div class="alloc-row"><span><i class="dot pink"></i> AAVE</span><strong>${data.decision.finalAllocation.AAVE}%</strong></div>
+        `;
+
+        document.querySelector('.stats-box').innerHTML = `
+          <div class="stat"><span>Expected Return</span><strong>${data.decision.expectedReturn}%</strong></div>
+          <div class="stat"><span>Risk Score</span><strong class="amber">${data.decision.riskScore}</strong></div>
+          <div class="stat"><span>Confidence</span><strong class="green">${data.decision.confidenceScore}%</strong></div>
+        `;
+      } catch (err) {
+        console.error(err);
+        workspaceList.innerHTML = '<p>Error connecting to backend.</p>';
+      } finally {
+        generateBtn.innerText = 'Generate Strategy';
+        generateBtn.disabled = false;
+      }
     });
   </script>
 </body>
