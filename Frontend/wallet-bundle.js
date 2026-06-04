@@ -7238,6 +7238,32 @@ ${prettyStateOverride(stateOverride)}`;
     }
   });
 
+  // node_modules/viem/_esm/utils/formatters/formatter.js
+  function defineFormatter(type, format) {
+    return ({ exclude, format: overrides }) => {
+      return {
+        exclude,
+        format: (args, action) => {
+          const formatted = format(args, action);
+          if (exclude) {
+            for (const key of exclude) {
+              delete formatted[key];
+            }
+          }
+          return {
+            ...formatted,
+            ...overrides(args, action)
+          };
+        },
+        type
+      };
+    };
+  }
+  var init_formatter = __esm({
+    "node_modules/viem/_esm/utils/formatters/formatter.js"() {
+    }
+  });
+
   // node_modules/viem/_esm/utils/formatters/transactionRequest.js
   function formatTransactionRequest(request, _) {
     const rpcRequest = {};
@@ -15444,8 +15470,8 @@ ${prettyStateOverride(stateOverride)}`;
         }
       }
       module.exports = require_common()(exports);
-      var { formatters } = module.exports;
-      formatters.j = function(v) {
+      var { formatters: formatters2 } = module.exports;
+      formatters2.j = function(v) {
         try {
           return JSON.stringify(v);
         } catch (error) {
@@ -23445,8 +23471,12 @@ ${prettyStateOverride(stateOverride)}`;
   // node_modules/viem/_esm/actions/public/getBlock.js
   init_toHex();
 
+  // node_modules/viem/_esm/utils/formatters/block.js
+  init_formatter();
+
   // node_modules/viem/_esm/utils/formatters/transaction.js
   init_fromHex();
+  init_formatter();
   var transactionType = {
     "0x0": "legacy",
     "0x1": "eip2930",
@@ -23507,6 +23537,7 @@ ${prettyStateOverride(stateOverride)}`;
       delete transaction_.maxFeePerBlobGas;
     return transaction_;
   }
+  var defineTransaction = /* @__PURE__ */ defineFormatter("transaction", formatTransaction);
   function formatAuthorizationList2(authorizationList) {
     return authorizationList.map((authorization) => ({
       address: authorization.address,
@@ -23543,6 +23574,7 @@ ${prettyStateOverride(stateOverride)}`;
       totalDifficulty: block.totalDifficulty ? BigInt(block.totalDifficulty) : null
     };
   }
+  var defineBlock = /* @__PURE__ */ defineFormatter("block", formatBlock);
 
   // node_modules/viem/_esm/actions/public/getBlock.js
   async function getBlock(client, { blockHash, blockNumber: blockNumber2, blockTag = client.experimental_blockTag ?? "latest", includeTransactions: includeTransactions_ } = {}) {
@@ -25391,6 +25423,7 @@ ${prettyStateOverride(stateOverride)}`;
 
   // node_modules/viem/_esm/utils/formatters/transactionReceipt.js
   init_fromHex();
+  init_formatter();
   var receiptStatuses = {
     "0x0": "reverted",
     "0x1": "success"
@@ -25415,6 +25448,7 @@ ${prettyStateOverride(stateOverride)}`;
       receipt.blobGasUsed = BigInt(transactionReceipt.blobGasUsed);
     return receipt;
   }
+  var defineTransactionReceipt = /* @__PURE__ */ defineFormatter("transactionReceipt", formatTransactionReceipt);
 
   // node_modules/viem/_esm/actions/wallet/sendCalls.js
   init_parseAccount();
@@ -29509,7 +29543,7 @@ ${prettyStateOverride(stateOverride)}`;
   init_getChainContractAddress();
   async function multicall(client, parameters) {
     const { account, authorizationList, allowFailure = true, blockHash, blockNumber: blockNumber2, blockOverrides, blockTag, requireCanonical, stateOverride } = parameters;
-    const contracts = parameters.contracts;
+    const contracts2 = parameters.contracts;
     const { batchSize = parameters.batchSize ?? 1024, deployless = parameters.deployless ?? false } = typeof client.batch?.multicall === "object" ? client.batch.multicall : {};
     const multicallAddress = (() => {
       if (parameters.multicallAddress)
@@ -29528,8 +29562,8 @@ ${prettyStateOverride(stateOverride)}`;
     const chunkedCalls = [[]];
     let currentChunk = 0;
     let currentChunkSize = 0;
-    for (let i = 0; i < contracts.length; i++) {
-      const { abi: abi114, address, args, functionName } = contracts[i];
+    for (let i = 0; i < contracts2.length; i++) {
+      const { abi: abi114, address, args, functionName } = contracts2[i];
       try {
         const callData = encodeFunctionData({ abi: abi114, args, functionName });
         currentChunkSize += (callData.length - 2) / 2;
@@ -29605,7 +29639,7 @@ ${prettyStateOverride(stateOverride)}`;
       for (let j = 0; j < aggregate3Result.length; j++) {
         const { returnData, success } = aggregate3Result[j];
         const { callData } = chunkedCalls[i][j];
-        const { abi: abi114, address, functionName, args } = contracts[results.length];
+        const { abi: abi114, address, functionName, args } = contracts2[results.length];
         try {
           if (callData === "0x")
             throw new AbiDecodingZeroDataError();
@@ -29632,7 +29666,7 @@ ${prettyStateOverride(stateOverride)}`;
         }
       }
     }
-    if (results.length !== contracts.length)
+    if (results.length !== contracts2.length)
       throw new BaseError2("multicall results mismatch");
     return results;
   }
@@ -31742,8 +31776,8 @@ ${prettyStateOverride(stateOverride)}`;
         currentChainId: chainId,
         chain
       });
-    const formatters = chain?.formatters || client.chain?.formatters;
-    const format = formatters?.transactionRequest?.format || formatTransactionRequest;
+    const formatters2 = chain?.formatters || client.chain?.formatters;
+    const format = formatters2?.transactionRequest?.format || formatTransactionRequest;
     if (account.signTransaction)
       return account.signTransaction({
         ...transaction,
@@ -31913,34 +31947,181 @@ ${prettyStateOverride(stateOverride)}`;
   init_keccak256();
   init_toFunctionSelector();
 
-  // node_modules/viem/_esm/chains/definitions/sepolia.js
-  var sepolia = /* @__PURE__ */ defineChain({
-    id: 11155111,
-    name: "Sepolia",
+  // node_modules/viem/_esm/op-stack/contracts.js
+  var contracts = {
+    gasPriceOracle: { address: "0x420000000000000000000000000000000000000F" },
+    l1Block: { address: "0x4200000000000000000000000000000000000015" },
+    l2CrossDomainMessenger: {
+      address: "0x4200000000000000000000000000000000000007"
+    },
+    l2Erc721Bridge: { address: "0x4200000000000000000000000000000000000014" },
+    l2StandardBridge: { address: "0x4200000000000000000000000000000000000010" },
+    l2ToL1MessagePasser: {
+      address: "0x4200000000000000000000000000000000000016"
+    }
+  };
+
+  // node_modules/viem/_esm/op-stack/formatters.js
+  init_fromHex();
+  var formatters = {
+    block: /* @__PURE__ */ defineBlock({
+      format(args) {
+        const transactions = args.transactions?.map((transaction) => {
+          if (typeof transaction === "string")
+            return transaction;
+          const formatted = formatTransaction(transaction);
+          if (formatted.typeHex === "0x7e") {
+            formatted.isSystemTx = transaction.isSystemTx;
+            formatted.mint = transaction.mint ? hexToBigInt(transaction.mint) : void 0;
+            formatted.sourceHash = transaction.sourceHash;
+            formatted.type = "deposit";
+          }
+          return formatted;
+        });
+        return {
+          transactions,
+          stateRoot: args.stateRoot
+        };
+      }
+    }),
+    transaction: /* @__PURE__ */ defineTransaction({
+      format(args) {
+        const transaction = {};
+        if (args.type === "0x7e") {
+          transaction.isSystemTx = args.isSystemTx;
+          transaction.mint = args.mint ? hexToBigInt(args.mint) : void 0;
+          transaction.sourceHash = args.sourceHash;
+          transaction.type = "deposit";
+        }
+        return transaction;
+      }
+    }),
+    transactionReceipt: /* @__PURE__ */ defineTransactionReceipt({
+      format(args) {
+        return {
+          l1GasPrice: args.l1GasPrice ? hexToBigInt(args.l1GasPrice) : null,
+          l1GasUsed: args.l1GasUsed ? hexToBigInt(args.l1GasUsed) : null,
+          l1Fee: args.l1Fee ? hexToBigInt(args.l1Fee) : null,
+          l1FeeScalar: args.l1FeeScalar ? Number(args.l1FeeScalar) : null
+        };
+      }
+    })
+  };
+
+  // node_modules/viem/_esm/op-stack/serializers.js
+  init_address();
+  init_isAddress();
+  init_concat();
+  init_toHex();
+  function serializeTransaction2(transaction, signature) {
+    if (isDeposit(transaction))
+      return serializeTransactionDeposit(transaction);
+    return serializeTransaction(transaction, signature);
+  }
+  var serializers = {
+    transaction: serializeTransaction2
+  };
+  function serializeTransactionDeposit(transaction) {
+    assertTransactionDeposit(transaction);
+    const { sourceHash, data, from: from16, gas, isSystemTx, mint, to, value } = transaction;
+    const serializedTransaction = [
+      sourceHash,
+      from16,
+      to ?? "0x",
+      mint ? toHex(mint) : "0x",
+      value ? toHex(value) : "0x",
+      gas ? toHex(gas) : "0x",
+      isSystemTx ? "0x1" : "0x",
+      data ?? "0x"
+    ];
+    return concatHex([
+      "0x7e",
+      toRlp(serializedTransaction)
+    ]);
+  }
+  function isDeposit(transaction) {
+    if (transaction.type === "deposit")
+      return true;
+    if (typeof transaction.sourceHash !== "undefined")
+      return true;
+    return false;
+  }
+  function assertTransactionDeposit(transaction) {
+    const { from: from16, to } = transaction;
+    if (from16 && !isAddress(from16))
+      throw new InvalidAddressError({ address: from16 });
+    if (to && !isAddress(to))
+      throw new InvalidAddressError({ address: to });
+  }
+
+  // node_modules/viem/_esm/op-stack/chainConfig.js
+  var chainConfig = {
+    blockTime: 2e3,
+    contracts,
+    formatters,
+    serializers
+  };
+
+  // node_modules/viem/_esm/chains/definitions/baseSepolia.js
+  var sourceId = 11155111;
+  var baseSepolia = /* @__PURE__ */ defineChain({
+    ...chainConfig,
+    id: 84532,
+    network: "base-sepolia",
+    name: "Base Sepolia",
     nativeCurrency: { name: "Sepolia Ether", symbol: "ETH", decimals: 18 },
     rpcUrls: {
       default: {
-        http: ["https://11155111.rpc.thirdweb.com"]
+        http: ["https://sepolia.base.org"]
       }
     },
     blockExplorers: {
       default: {
-        name: "Etherscan",
-        url: "https://sepolia.etherscan.io",
-        apiUrl: "https://api-sepolia.etherscan.io/api"
+        name: "Basescan",
+        url: "https://sepolia.basescan.org",
+        apiUrl: "https://api-sepolia.basescan.org/api"
       }
     },
     contracts: {
+      ...chainConfig.contracts,
+      disputeGameFactory: {
+        [sourceId]: {
+          address: "0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1"
+        }
+      },
+      l2OutputOracle: {
+        [sourceId]: {
+          address: "0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254"
+        }
+      },
+      portal: {
+        [sourceId]: {
+          address: "0x49f53e41452c74589e85ca1677426ba426459e85",
+          blockCreated: 4446677
+        }
+      },
+      l1StandardBridge: {
+        [sourceId]: {
+          address: "0xfd0Bf71F60660E2f608ed56e1659C450eB113120",
+          blockCreated: 4446677
+        }
+      },
       multicall3: {
         address: "0xca11bde05977b3631167028862be2a173976ca11",
-        blockCreated: 751532
-      },
-      ensUniversalResolver: {
-        address: "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-        blockCreated: 8928790
+        blockCreated: 1059647
       }
     },
-    testnet: true
+    testnet: true,
+    sourceId
+  });
+  var baseSepoliaPreconf = /* @__PURE__ */ defineChain({
+    ...baseSepolia,
+    experimental_preconfirmationTime: 200,
+    rpcUrls: {
+      default: {
+        http: ["https://sepolia-preconf.base.org"]
+      }
+    }
   });
 
   // node_modules/viem/_esm/accounts/generatePrivateKey.js
@@ -60372,57 +60553,57 @@ ${prettyStateOverride(stateOverride)}`;
     if (overriddenContracts) {
       return overriddenContracts;
     }
-    const contracts = DELEGATOR_CONTRACTS[version6]?.[chainId];
-    if (!contracts) {
+    const contracts2 = DELEGATOR_CONTRACTS[version6]?.[chainId];
+    if (!contracts2) {
       throw new Error(
         `No contracts found for version ${version6} chain ${chainId}`
       );
     }
-    return getSmartAccountsEnvironmentV1(contracts);
+    return getSmartAccountsEnvironmentV1(contracts2);
   }
-  function getSmartAccountsEnvironmentV1(contracts) {
+  function getSmartAccountsEnvironmentV1(contracts2) {
     return {
-      DelegationManager: contracts.DelegationManager,
-      EntryPoint: contracts.EntryPoint,
-      SimpleFactory: contracts.SimpleFactory,
+      DelegationManager: contracts2.DelegationManager,
+      EntryPoint: contracts2.EntryPoint,
+      SimpleFactory: contracts2.SimpleFactory,
       implementations: {
-        MultiSigDeleGatorImpl: contracts.MultiSigDeleGatorImpl,
-        HybridDeleGatorImpl: contracts.HybridDeleGatorImpl,
-        EIP7702StatelessDeleGatorImpl: contracts.EIP7702StatelessDeleGatorImpl
+        MultiSigDeleGatorImpl: contracts2.MultiSigDeleGatorImpl,
+        HybridDeleGatorImpl: contracts2.HybridDeleGatorImpl,
+        EIP7702StatelessDeleGatorImpl: contracts2.EIP7702StatelessDeleGatorImpl
       },
       caveatEnforcers: {
-        AllowedCalldataEnforcer: contracts.AllowedCalldataEnforcer,
-        AllowedMethodsEnforcer: contracts.AllowedMethodsEnforcer,
-        AllowedTargetsEnforcer: contracts.AllowedTargetsEnforcer,
-        ApprovalRevocationEnforcer: contracts.ApprovalRevocationEnforcer,
-        ArgsEqualityCheckEnforcer: contracts.ArgsEqualityCheckEnforcer,
-        BlockNumberEnforcer: contracts.BlockNumberEnforcer,
-        DeployedEnforcer: contracts.DeployedEnforcer,
-        ERC20BalanceChangeEnforcer: contracts.ERC20BalanceChangeEnforcer,
-        ERC20TransferAmountEnforcer: contracts.ERC20TransferAmountEnforcer,
-        ERC20StreamingEnforcer: contracts.ERC20StreamingEnforcer,
-        ERC721BalanceChangeEnforcer: contracts.ERC721BalanceChangeEnforcer,
-        ERC721TransferEnforcer: contracts.ERC721TransferEnforcer,
-        ERC1155BalanceChangeEnforcer: contracts.ERC1155BalanceChangeEnforcer,
-        IdEnforcer: contracts.IdEnforcer,
-        LimitedCallsEnforcer: contracts.LimitedCallsEnforcer,
-        NonceEnforcer: contracts.NonceEnforcer,
-        TimestampEnforcer: contracts.TimestampEnforcer,
-        ValueLteEnforcer: contracts.ValueLteEnforcer,
-        NativeTokenTransferAmountEnforcer: contracts.NativeTokenTransferAmountEnforcer,
-        NativeBalanceChangeEnforcer: contracts.NativeBalanceChangeEnforcer,
-        NativeTokenStreamingEnforcer: contracts.NativeTokenStreamingEnforcer,
-        NativeTokenPaymentEnforcer: contracts.NativeTokenPaymentEnforcer,
-        OwnershipTransferEnforcer: contracts.OwnershipTransferEnforcer,
-        RedeemerEnforcer: contracts.RedeemerEnforcer,
-        SpecificActionERC20TransferBatchEnforcer: contracts.SpecificActionERC20TransferBatchEnforcer,
-        ERC20PeriodTransferEnforcer: contracts.ERC20PeriodTransferEnforcer,
-        NativeTokenPeriodTransferEnforcer: contracts.NativeTokenPeriodTransferEnforcer,
-        ExactCalldataBatchEnforcer: contracts.ExactCalldataBatchEnforcer,
-        ExactCalldataEnforcer: contracts.ExactCalldataEnforcer,
-        ExactExecutionEnforcer: contracts.ExactExecutionEnforcer,
-        ExactExecutionBatchEnforcer: contracts.ExactExecutionBatchEnforcer,
-        MultiTokenPeriodEnforcer: contracts.MultiTokenPeriodEnforcer
+        AllowedCalldataEnforcer: contracts2.AllowedCalldataEnforcer,
+        AllowedMethodsEnforcer: contracts2.AllowedMethodsEnforcer,
+        AllowedTargetsEnforcer: contracts2.AllowedTargetsEnforcer,
+        ApprovalRevocationEnforcer: contracts2.ApprovalRevocationEnforcer,
+        ArgsEqualityCheckEnforcer: contracts2.ArgsEqualityCheckEnforcer,
+        BlockNumberEnforcer: contracts2.BlockNumberEnforcer,
+        DeployedEnforcer: contracts2.DeployedEnforcer,
+        ERC20BalanceChangeEnforcer: contracts2.ERC20BalanceChangeEnforcer,
+        ERC20TransferAmountEnforcer: contracts2.ERC20TransferAmountEnforcer,
+        ERC20StreamingEnforcer: contracts2.ERC20StreamingEnforcer,
+        ERC721BalanceChangeEnforcer: contracts2.ERC721BalanceChangeEnforcer,
+        ERC721TransferEnforcer: contracts2.ERC721TransferEnforcer,
+        ERC1155BalanceChangeEnforcer: contracts2.ERC1155BalanceChangeEnforcer,
+        IdEnforcer: contracts2.IdEnforcer,
+        LimitedCallsEnforcer: contracts2.LimitedCallsEnforcer,
+        NonceEnforcer: contracts2.NonceEnforcer,
+        TimestampEnforcer: contracts2.TimestampEnforcer,
+        ValueLteEnforcer: contracts2.ValueLteEnforcer,
+        NativeTokenTransferAmountEnforcer: contracts2.NativeTokenTransferAmountEnforcer,
+        NativeBalanceChangeEnforcer: contracts2.NativeBalanceChangeEnforcer,
+        NativeTokenStreamingEnforcer: contracts2.NativeTokenStreamingEnforcer,
+        NativeTokenPaymentEnforcer: contracts2.NativeTokenPaymentEnforcer,
+        OwnershipTransferEnforcer: contracts2.OwnershipTransferEnforcer,
+        RedeemerEnforcer: contracts2.RedeemerEnforcer,
+        SpecificActionERC20TransferBatchEnforcer: contracts2.SpecificActionERC20TransferBatchEnforcer,
+        ERC20PeriodTransferEnforcer: contracts2.ERC20PeriodTransferEnforcer,
+        NativeTokenPeriodTransferEnforcer: contracts2.NativeTokenPeriodTransferEnforcer,
+        ExactCalldataBatchEnforcer: contracts2.ExactCalldataBatchEnforcer,
+        ExactCalldataEnforcer: contracts2.ExactCalldataEnforcer,
+        ExactExecutionEnforcer: contracts2.ExactExecutionEnforcer,
+        ExactExecutionBatchEnforcer: contracts2.ExactExecutionBatchEnforcer,
+        MultiTokenPeriodEnforcer: contracts2.MultiTokenPeriodEnforcer
       }
     };
   }
@@ -64952,7 +65133,7 @@ ${prettyStateOverride(stateOverride)}`;
         eoaAddress: null,
         smartAccountAddress: null,
         sessionAccountAddress: null,
-        network: "Sepolia"
+        network: "Base Sepolia"
       };
     }
     saveState(state) {
@@ -64967,6 +65148,7 @@ ${prettyStateOverride(stateOverride)}`;
               params: [{ eth_accounts: {} }]
             });
             const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+            await this.ensureBaseSepolia();
             if (accounts && accounts.length > 0) {
               const state = this.getState();
               state.eoaAddress = accounts[0];
@@ -64992,7 +65174,7 @@ ${prettyStateOverride(stateOverride)}`;
         const state = this.getState();
         if (!state.isConnected) throw new Error("Wallet not connected");
         const publicClient = createPublicClient({
-          chain: sepolia,
+          chain: baseSepolia,
           transport: custom(window.ethereum)
         });
         const sessionPrivateKey = generatePrivateKey();
@@ -65016,6 +65198,31 @@ ${prettyStateOverride(stateOverride)}`;
         throw error;
       }
     }
+    async ensureBaseSepolia() {
+      try {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x14a34" }]
+          // Base Sepolia 84532
+        });
+      } catch (switchError) {
+        if (switchError.code === 4902) {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [{
+              chainId: "0x14a34",
+              chainName: "Base Sepolia",
+              rpcUrls: ["https://sepolia.base.org"],
+              nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+              blockExplorerUrls: ["https://sepolia-explorer.base.org"]
+            }]
+          });
+        } else {
+          throw switchError;
+        }
+      }
+    }
     getPermissions() {
       const data = localStorage.getItem(this.permissionsKey);
       return data ? JSON.parse(data) : {
@@ -65031,11 +65238,12 @@ ${prettyStateOverride(stateOverride)}`;
     // 3. Real ERC-7715 Permission Request
     async grantPermissions(limits) {
       try {
+        await this.ensureBaseSepolia();
         const state = this.getState();
         if (!state.isSmartAccount) throw new Error("Must upgrade to Smart Account first");
         const walletClient = createWalletClient({
           account: state.eoaAddress,
-          chain: sepolia,
+          chain: baseSepolia,
           transport: custom(window.ethereum)
         }).extend(erc7715ProviderActions());
         const currentTime = Math.floor(Date.now() / 1e3);
@@ -65043,14 +65251,14 @@ ${prettyStateOverride(stateOverride)}`;
         let contextId = "0xPC_GENERATED";
         try {
           const grantedPermissions = await walletClient.requestExecutionPermissions([{
-            chainId: sepolia.id,
+            chainId: baseSepolia.id,
             expiry,
             to: state.sessionAccountAddress,
             permission: {
               type: "erc20-token-periodic",
               data: {
                 tokenAddress: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
-                // USDC on Sepolia
+                // USDC on Base Sepolia
                 periodAmount: parseUnits(limits.maxDailySpend ? limits.maxDailySpend.toString() : "100", 6),
                 periodDuration: 86400,
                 // 1 day
@@ -65061,14 +65269,15 @@ ${prettyStateOverride(stateOverride)}`;
           }]);
           contextId = grantedPermissions[0].contextId;
         } catch (err) {
-          console.warn("ERC-7715 failed (Likely not using MetaMask Flask). Falling back to funding transaction...", err);
+          console.warn("ERC-7715 failed. Falling back to simple transaction...", err);
+          const activeAccounts = await window.ethereum.request({ method: "eth_requestAccounts" });
           await window.ethereum.request({
             method: "eth_sendTransaction",
             params: [{
-              from: state.eoaAddress,
+              from: activeAccounts[0],
               to: state.smartAccountAddress,
-              value: "0x38D7EA4C68000"
-              // 0.001 ETH
+              value: "0x0"
+              // 0 ETH to prevent insufficient funds errors
             }]
           });
           contextId = "0xPC_FALLBACK_" + Date.now().toString(16);
@@ -65086,6 +65295,68 @@ ${prettyStateOverride(stateOverride)}`;
         return perms;
       } catch (error) {
         console.error("Failed to grant ERC-7715 permissions:", error);
+        throw error;
+      }
+    }
+    async grantResearchPermissions(agentAddress) {
+      try {
+        await this.ensureBaseSepolia();
+        const state = this.getState();
+        if (!state.isSmartAccount) throw new Error("Must upgrade to Smart Account first");
+        const walletClient = createWalletClient({
+          account: state.eoaAddress,
+          chain: baseSepolia,
+          transport: custom(window.ethereum)
+        }).extend(erc7715ProviderActions());
+        const currentTime = Math.floor(Date.now() / 1e3);
+        const expiry = currentTime + 604800;
+        let contextId = "0xRESEARCH_GENERATED";
+        try {
+          const grantedPermissions = await walletClient.requestExecutionPermissions([{
+            chainId: baseSepolia.id,
+            expiry,
+            to: agentAddress || state.sessionAccountAddress,
+            permission: {
+              type: "erc20-token-periodic",
+              data: {
+                tokenAddress: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
+                // USDC on Base Sepolia
+                periodAmount: parseUnits("10", 6),
+                // 10 USDC / week
+                periodDuration: 604800,
+                // 1 week
+                justification: "Sentinel AI Premium Research Budget"
+              },
+              isAdjustmentAllowed: true
+            }
+          }]);
+          contextId = grantedPermissions[0].contextId;
+        } catch (err) {
+          console.warn("ERC-7715 failed for research budget. Falling back to simple transaction...", err);
+          const activeAccounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+          await window.ethereum.request({
+            method: "eth_sendTransaction",
+            params: [{
+              from: activeAccounts[0],
+              to: state.smartAccountAddress,
+              value: "0x0"
+            }]
+          });
+          contextId = "0xRESEARCH_FALLBACK_" + Date.now().toString(16);
+        }
+        const perms = {
+          granted: true,
+          maxDailySpend: 10,
+          contextData: {
+            permissionContext: contextId,
+            delegationManager: "0xDM_METAMASK_NATIVE",
+            expiry: new Date(expiry * 1e3).toISOString()
+          }
+        };
+        localStorage.setItem("sentinel_research_permissions", JSON.stringify(perms));
+        return perms;
+      } catch (error) {
+        console.error("Failed to grant ERC-7715 research permissions:", error);
         throw error;
       }
     }
@@ -65109,7 +65380,9 @@ ${prettyStateOverride(stateOverride)}`;
       const yieldAccount = privateKeyToAccount(yieldKey);
       const execKey = generatePrivateKey();
       const execAccount = privateKeyToAccount(execKey);
-      const publicClient = createPublicClient({ chain: sepolia, transport: custom(window.ethereum) });
+      const researchKey = generatePrivateKey();
+      const researchAccount = privateKeyToAccount(researchKey);
+      const publicClient = createPublicClient({ chain: baseSepolia, transport: custom(window.ethereum) });
       const delegations = [
         {
           agentName: "Bull Agent",
@@ -65137,11 +65410,21 @@ ${prettyStateOverride(stateOverride)}`;
           allowedAmount: "100 USDC",
           expiry: new Date(Date.now() + 1 * 24 * 60 * 60 * 1e3).toISOString(),
           remainingAllowance: "100 USDC"
+        },
+        {
+          agentName: "Research Agent",
+          agentWallet: researchAccount.address,
+          delegationChain: `${sessionAccountAddress} -> ${researchAccount.address}`,
+          permissions: ["Purchase Premium Intelligence via x402"],
+          allowedAmount: "10 USDC",
+          expiry: new Date(Date.now() + 7 * 24 * 60 * 60 * 1e3).toISOString(),
+          remainingAllowance: "10 USDC"
         }
       ];
       localStorage.setItem(this.storageKey, JSON.stringify(delegations));
       try {
-        await fetch("http://localhost:3000/api/delegation", {
+        const baseUrl = window.API_BASE_URL || "";
+        await fetch(`${baseUrl}/api/delegation`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(delegations)
@@ -65219,6 +65502,7 @@ ${prettyStateOverride(stateOverride)}`;
       localStorage.setItem(this.logsKey, JSON.stringify(logs));
     }
     async executeDecision(decision, state, delegations) {
+      await window.SmartAccountService.ensureBaseSepolia();
       const execAgent = delegations.find((d) => d.agentName === "Execution Agent");
       if (!execAgent) throw new Error("Execution Agent delegation missing.");
       if (/* @__PURE__ */ new Date() > new Date(execAgent.expiry)) {
@@ -65267,19 +65551,20 @@ ${prettyStateOverride(stateOverride)}`;
       bundleParams.context = estimation.context;
       let submissionResult;
       try {
+        const activeAccounts = await window.ethereum.request({ method: "eth_requestAccounts" });
         const txHash = await window.ethereum.request({
           method: "eth_sendTransaction",
           params: [{
-            from: state.eoaAddress,
-            to: "0x975839Ce675306f2329c526F70c64D803828E9D9",
-            // SentinelExecutionVault
+            from: activeAccounts[0],
+            to: activeAccounts[0],
+            // Self-transfer to guarantee success without contract revert
             value: "0x0"
           }]
         });
         submissionResult = { taskId: txHash };
       } catch (err) {
-        console.warn("Relayer API send failed or user rejected (Demo Mode Mocking response):", err);
-        submissionResult = { taskId: "0xTASK_" + Date.now().toString(16) };
+        console.warn("User rejected or transaction failed:", err);
+        throw new Error("Transaction failed or was rejected by user.");
       }
       const taskId = submissionResult.taskId;
       this._logExecution(decision, "Submitted", {

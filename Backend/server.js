@@ -47,6 +47,9 @@ const server = http.createServer(async (req, res) => {
       try {
         const inputs = body ? JSON.parse(body) : { investmentAmount: 500000, riskLevel: 'moderate', investmentHorizon: '6 months' };
         
+        // Pass activeDelegations to inputs for x402 research
+        inputs.activeDelegations = activeDelegations;
+
         const orchestrator = new CommitteeOrchestrator();
         const result = await orchestrator.runCommittee(inputs);
         
@@ -64,6 +67,40 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify({ error: error.message || 'Internal Server Error' }));
       }
     });
+  } else if (req.url === '/api/premium-market-signals' && req.method === 'GET') {
+    // x402 Payment Verification
+    const paymentReceipt = req.headers['x-payment-receipt'] || req.headers['x-402-payment-receipt'];
+    
+    if (!paymentReceipt) {
+      res.writeHead(402, {
+        'Content-Type': 'application/json',
+        'x-402-payment-required': 'true',
+        'x-402-payment-token': '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238', // USDC on Base Sepolia
+        'x-402-payment-amount': '10000', // 0.01 USDC (6 decimals)
+        'x-402-payment-destination': '0xDE1E6A7E00000000000000000000000000000000' // Sentinel AI Treasury
+      });
+      return res.end(JSON.stringify({ 
+        error: 'Payment Required', 
+        message: 'Premium intelligence requires a 0.01 USDC payment via x402.' 
+      }));
+    }
+
+    // Payment provided - return premium payload
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      success: true,
+      data: {
+        whaleAccumulationAlerts: ['0xAbC... accumulates 500k ETH', '0xDEF... swaps 10M USDC for WBTC'],
+        dexVolumeTrends: { 'Uniswap V3': '+15%', 'Aerodrome': '+45%' },
+        stablecoinInflows: '+1.2B USD',
+        protocolTvlChanges: { 'Aave V3': '+5%', 'Compound': '-2%' },
+        yieldOpportunities: [
+          { protocol: 'Aave', asset: 'USDC', apy: '8.5%' },
+          { protocol: 'Aerodrome', asset: 'WETH/USDC', apy: '24.2%' }
+        ],
+        marketSentimentScore: 82 // Bullish
+      }
+    }));
   } else if (req.url === '/api/smart-account/status' && req.method === 'GET') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({

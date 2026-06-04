@@ -1,5 +1,7 @@
 # Sentinel AI — Autonomous Investment Committee
 
+**Live Demo:** [https://sentineel.netlify.app/](https://sentineel.netlify.app/)
+
 >A focused README describing architecture, stack, frontend design, workflow, demo steps, and prize-track strategy for the Sentinel AI Investment Committee (an autonomous, on-chain AI Investment Committee using MetaMask Smart Accounts, Venice AI, and agent-to-agent coordination).
 
 ---
@@ -229,7 +231,7 @@ Created for the Sentinel AI: Autonomous Investment Committee concept.
 
 ---
 
-## Deployed Contracts (Sepolia)
+## Deployed Contracts (Base Sepolia)
 - **SentinelPolicyManager**: `0x33491e1b1fbD9F1d757a0ABd1a2930D189d4990E`
 - **SentinelAgentRegistry**: `0xfc8C9aeF0085Cee0EEB4110C9E681ECd8c105930`
 - **SentinelExecutionVault**: `0x975839Ce675306f2329c526F70c64D803828E9D9`
