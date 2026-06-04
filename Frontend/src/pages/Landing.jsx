@@ -7,12 +7,23 @@ export default function Landing() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  function handleConnect() {
+  async function handleConnect() {
     setLoading(true);
+    
+    try {
+      if (typeof window.ethereum !== 'undefined') {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+      } else {
+        console.warn("Metamask is not installed. Proceeding to dashboard in demo mode.");
+      }
+    } catch (error) {
+      console.error("User rejected request or error occurred:", error);
+    }
+
     setTimeout(() => {
       setLoading(false);
       window.location.href = '/dashboard.html';
-    }, 2000);
+    }, 1000);
   }
 
   const onConnect = handleConnect;
