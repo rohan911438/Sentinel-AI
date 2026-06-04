@@ -65423,7 +65423,8 @@ ${prettyStateOverride(stateOverride)}`;
       ];
       localStorage.setItem(this.storageKey, JSON.stringify(delegations));
       try {
-        await fetch("http://localhost:3000/api/delegation", {
+        const baseUrl = window.API_BASE_URL || "";
+        await fetch(`${baseUrl}/api/delegation`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(delegations)

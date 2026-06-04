@@ -62,7 +62,8 @@
       const loadLogs = async () => {
         const body = document.getElementById('log-body');
         try {
-          const res = await fetch('http://localhost:3000/api/enforcement/logs');
+          const baseUrl = window.API_BASE_URL || '';
+          const res = await fetch(`${baseUrl}/api/enforcement/logs`);
           const logs = await res.json();
           
           if (logs.length === 0) {

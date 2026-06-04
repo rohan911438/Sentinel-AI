@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Sentinel AI is an autonomous AI investment committee with debate, voting, execution, and institutional guardrails." />
+  <title>Sentinel AI — Autonomous Investment Committee</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --bg-2: #080808;
+      --panel: #0f0f10;
+      --panel-2: #121214;
+      --border: rgba(255,255,255,0.08);
+      --text: #f5f7fb;
+      --muted: #a1a7b3;
+      --muted-2: #7d8594;
+      --accent: #3b82f6;
+      --accent-2: #10b981;
+      --accent-3: #f59e0b;
+      --accent-4: #ec4899;
+      --shadow: 0 24px 90px rgba(0,0,0,0.55);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 12% -8%, rgba(59,130,246,0.26), transparent 58%),
+        radial-gradient(900px 500px at 88% 4%, rgba(16,185,129,0.16), transparent 55%),
+        radial-gradient(900px 500px at 50% 100%, rgba(245,158,11,0.12), transparent 60%),
+        linear-gradient(180deg, var(--bg), var(--bg-2));
+      font-family: Inter, "Segoe UI", "SF Pro Display", Arial, sans-serif;
+      line-height: 1.45;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(circle at center, rgba(0,0,0,0.7), transparent 84%);
+      opacity: 0.25;
+      z-index: 0;
+    }
+
+    .orbit {
+      position: fixed;
+      inset: auto -8vw 5vh auto;
+      width: 36vw;
+      height: 36vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(59,130,246,0.12), transparent 68%);
+      filter: blur(6px);
+      pointer-events: none;
+      animation: drift 18s ease-in-out infinite alternate;
+      z-index: 0;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      width: min(1220px, 92vw);
+      margin: 24px auto 64px;
+    }
+
+    .topbar, .panel, .section, .footer {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      position: sticky;
+      top: 14px;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+
+    .brand-mark {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 18px rgba(59,130,246,0.8), 0 0 30px rgba(16,185,129,0.35);
+      animation: pulse 2.6s infinite;
+    }
+
+    .nav {
+      display: flex;
+      gap: 16px;
+      color: var(--muted);
+      font-size: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .nav a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .nav a:hover { color: var(--text); }
+
+    .button-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      appearance: none;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 18px;
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      font-weight: 650;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    .button.primary {
+      border: none;
+      background: linear-gradient(135deg, #2563eb, #3b82f6 55%, #60a5fa);
+      box-shadow: 0 16px 30px rgba(37,99,235,0.28);
+    }
+
+    .button.ghost {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 24px;
+      margin-top: 26px;
+      align-items: stretch;
+    }
+
+    .hero-copy, .hero-visual, .section, .footer {
+      border-radius: 22px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-copy, .hero-visual { padding: 30px; }
+
+    .hero-copy::before, .hero-visual::before, .section::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(120deg, rgba(59,130,246,0.08), transparent 35%, rgba(16,185,129,0.06), transparent 72%, rgba(236,72,153,0.05));
+      opacity: 0.8;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(59,130,246,0.28);
+      background: rgba(59,130,246,0.08);
+      color: #d8e7ff;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 11px;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      margin: 18px 0 12px;
+      font-size: clamp(44px, 6vw, 72px);
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+      max-width: 10.5ch;
+      position: relative;
+      z-index: 1;
+    }
+
+    .subhead {
+      margin: 0;
+      max-width: 62ch;
+      color: var(--muted);
+      font-size: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 24px 0 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .metric {
+      padding: 14px 15px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      background: rgba(0,0,0,0.32);
+      min-height: 94px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .metric span { color: var(--muted); font-size: 13px; }
+
+    .visual-stack {
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .visual-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .live {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid rgba(16,185,129,0.3);
+      color: #c8ffe6;
+      background: rgba(16,185,129,0.08);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .live::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      box-shadow: 0 0 18px rgba(16,185,129,0.7);
+      animation: pulse 1.8s infinite;
+    }
+
+    .orbital {
+      min-height: 280px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background:
+        radial-gradient(circle at 35% 25%, rgba(59,130,246,0.22), transparent 26%),
+        radial-gradient(circle at 68% 26%, rgba(16,185,129,0.18), transparent 20%),
+        radial-gradient(circle at 50% 80%, rgba(245,158,11,0.12), transparent 26%),
+        linear-gradient(180deg, rgba(255,255,255,0.05), rgba(0,0,0,0.38));
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .orbital::after {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: inset 0 0 0 1px rgba(59,130,246,0.08);
+      animation: spin-slow 30s linear infinite;
+    }
+
+    .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.08);
+      inset: 18% 22%;
+      animation: spin-slow 20s linear infinite reverse;
+    }
+
+    .ring.r2 {
+      inset: 28% 32%;
+      animation-duration: 16s;
+    }
+
+    .node {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      box-shadow: 0 0 24px currentColor;
+      animation: bob 4s ease-in-out infinite;
+    }
+
+    .node.bull { color: #60a5fa; background: #60a5fa; top: 18%; left: 18%; }
+    .node.bear { color: #fb7185; background: #fb7185; top: 18%; right: 20%; animation-delay: 0.6s; }
+    .node.neutral { color: #fbbf24; background: #fbbf24; bottom: 18%; left: 24%; animation-delay: 1.2s; }
+    .node.onchain { color: #34d399; background: #34d399; bottom: 20%; right: 22%; animation-delay: 1.8s; }
+    .node.yield { color: #a78bfa; background: #a78bfa; top: 48%; left: 48%; animation-delay: 2.2s; }
+
+    .visual-card {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+    }
+
+    .visual-card h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .mini {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px 11px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .mini b { display: block; font-size: 13px; margin-bottom: 4px; }
+    .mini span { color: var(--muted); font-size: 12px; }
+
+    .marquee {
+      margin: 22px 0 4px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 24px;
+      white-space: nowrap;
+      padding: 12px 18px;
+      color: #dbe5ff;
+      animation: scroll 28s linear infinite;
+    }
+
+    .marquee-track span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .marquee-track span strong { color: var(--text); }
+
+    .content {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .section {
+      padding: 24px;
+      transform: translateY(18px);
+      opacity: 0;
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .section.reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .section h2 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -0.04em;
+    }
+
+    .section p.lead {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 70ch;
+      font-size: 16px;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .grid-5 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+
+    .info-card, .agent-card, .feature-card, .signal-card, .step-card, .metric-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.02);
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .info-card::after, .agent-card::after, .feature-card::after, .signal-card::after, .step-card::after, .metric-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -20% -42% auto;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(59,130,246,0.2), transparent 72%);
+      pointer-events: none;
+    }
+
+    .info-card strong, .agent-card strong, .feature-card strong, .signal-card strong, .step-card strong, .metric-card strong { display: block; margin-bottom: 8px; }
+    .info-card p, .agent-card p, .feature-card p, .signal-card p, .step-card p, .metric-card p { margin: 0; color: var(--muted); }
+
+    .step-list {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      counter-reset: step;
+    }
+
+    .step-card {
+      min-height: 158px;
+    }
+
+    .step-card::before {
+      counter-increment: step;
+      content: counter(step);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, rgba(59,130,246,0.32), rgba(16,185,129,0.22));
+      border: 1px solid rgba(255,255,255,0.12);
+      font-weight: 800;
+    }
+
+    .committee-name {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .vote {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid rgba(59,130,246,0.34);
+      background: rgba(59,130,246,0.09);
+    }
+
+    .vote.green { border-color: rgba(16,185,129,0.35); background: rgba(16,185,129,0.09); }
+    .vote.amber { border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.09); }
+    .vote.pink { border-color: rgba(236,72,153,0.35); background: rgba(236,72,153,0.09); }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 12px;
+    }
+
+    .timeline-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .timeline-item:last-child { border-bottom: 0; padding-bottom: 0; }
+    .timeline-time { color: #dbeafe; font-weight: 800; }
+    .timeline-desc { color: var(--muted); }
+
+    .signal-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .signal-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .signal-row span { color: var(--muted); font-size: 13px; }
+    .signal-bar {
+      width: 110px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+      flex: none;
+    }
+    .signal-bar i {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      animation: shimmer 3.6s ease-in-out infinite;
+    }
+
+    .signal-bar.warn i { background: linear-gradient(90deg, var(--accent-3), #fb7185); }
+    .signal-bar.info i { background: linear-gradient(90deg, #8b5cf6, #60a5fa); }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric-card strong { font-size: 24px; }
+
+    .footer {
+      margin-top: 18px;
+      padding: 18px 20px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      border-radius: 18px;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.78);
+      backdrop-filter: blur(8px);
+      z-index: 80;
+    }
+
+    .loader {
+      text-align: center;
+      padding: 24px 26px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(12,12,12,0.92);
+      box-shadow: var(--shadow);
+    }
+
+    .spinner {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      border: 7px solid rgba(255,255,255,0.08);
+      border-top-color: var(--accent);
+      border-right-color: var(--accent-2);
+      margin: 0 auto;
+      animation: spin 1s linear infinite;
+    }
+
+    .loader h3 { margin: 14px 0 4px; font-size: 20px; }
+    .loader p { margin: 0; color: var(--muted); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin-slow { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%,100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.15); opacity: 1; } }
+    @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    @keyframes drift { 0% { transform: translate(0, 0); } 100% { transform: translate(-4vw, -2vh); } }
+    @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    @keyframes shimmer { 0%,100% { filter: brightness(1); transform: translateX(0); } 50% { filter: brightness(1.25); transform: translateX(4px); } }
+
+    @media (max-width: 1080px) {
+      .hero, .timeline { grid-template-columns: 1fr; }
+      .step-list, .grid-5, .grid-3, .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .mini-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 700px) {
+      .wrap { width: min(94vw, 1220px); margin-top: 14px; }
+      .topbar { position: static; }
+      .hero-copy, .hero-visual, .section, .footer { border-radius: 18px; }
+      .hero-copy, .hero-visual, .section { padding: 18px; }
+      h1 { max-width: none; font-size: clamp(38px, 14vw, 56px); }
+      .hero-metrics, .step-list, .grid-5, .grid-3, .grid-2, .stats-grid, .mini-grid { grid-template-columns: 1fr; }
+      .nav { display: none; }
+      .timeline-item { grid-template-columns: 1fr; gap: 4px; }
+      .signal-row { align-items: start; flex-direction: column; }
+      .signal-bar { width: 100%; }
+      .marquee-track { animation-duration: 20s; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orbit"></div>
+  <div class="wrap">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark"></span>Sentinel AI</div>
+      <nav class="nav" aria-label="Primary">
+        <a href="#how-it-works">How It Works</a>
+        <a href="#committee">Committee</a>
+        <a href="#signals">Signals</a>
+        <a href="#features">Features</a>
+      </nav>
+      <div class="button-row">
+        <button class="button ghost" id="demo-top">View Demo</button>
+        <button class="button primary" id="connect-top">Connect Wallet</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy panel">
+        <span class="eyebrow">Institutional AI Platform</span>
+        <h1>Your Autonomous AI Investment Committee</h1>
+        <p class="subhead">A team of AI agents that debate, vote, and execute investment decisions on your behalf. Sentinel AI combines market context, onchain flows, risk controls, and execution logic into a single operating layer for modern portfolios.</p>
+
+        <div class="hero-actions">
+          <button class="button primary" id="connect">Connect Wallet</button>
+          <button class="button ghost" id="demo">View Demo</button>
+        </div>
+
+        <div class="hero-metrics">
+          <div class="metric"><strong>5 Agents</strong><span>Parallel committee analysis across momentum, risk, flow, yield, and balance.</span></div>
+          <div class="metric"><strong>24/7</strong><span>Continuous monitoring of volatility, liquidity, and position drift.</span></div>
+          <div class="metric"><strong>99.4%</strong><span>Execution reliability across automated portfolio actions and rebalances.</span></div>
+        </div>
+      </div>
+
+      <div class="hero-visual panel" aria-hidden="true">
+        <div class="visual-stack">
+          <div class="visual-header">
+            <strong>AI Committee</strong>
+            <span class="live">Live Debate</span>
+          </div>
+
+          <div class="orbital">
+            <div class="ring"></div>
+            <div class="ring r2"></div>
+            <div class="node bull"></div>
+            <div class="node bear"></div>
+            <div class="node neutral"></div>
+            <div class="node onchain"></div>
+            <div class="node yield"></div>
+
+            <div class="visual-card">
+              <h3>Committee Readout</h3>
+              <div class="mini-grid">
+                <div class="mini"><b>Bull</b><span>Momentum expansion and breakout confirmation.</span></div>
+                <div class="mini"><b>Bear</b><span>Volatility elevated. Hedge ratios tightening.</span></div>
+                <div class="mini"><b>Neutral</b><span>Vote balanced. Preserve capital efficiency.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="marquee">
+      <div class="marquee-track">
+        <span><strong>Real-time committee debate</strong> • Agent consensus before execution</span>
+        <span><strong>Onchain flow intelligence</strong> • Wallet clusters, liquidity, routing</span>
+        <span><strong>Risk-aware rebalancing</strong> • Drawdown, volatility, concentration checks</span>
+        <span><strong>Autonomous execution</strong> • Built-in guardrails for every action</span>
+        <span><strong>Real-time committee debate</strong> • Agent consensus before execution</span>
+        <span><strong>Onchain flow intelligence</strong> • Wallet clusters, liquidity, routing</span>
+        <span><strong>Risk-aware rebalancing</strong> • Drawdown, volatility, concentration checks</span>
+        <span><strong>Autonomous execution</strong> • Built-in guardrails for every action</span>
+      </div>
+    </div>
+
+    <main class="content">
+      <section class="section" id="how-it-works">
+        <div class="section-head">
+          <div>
+            <h2>How It Works</h2>
+            <p class="lead">The platform ingests market context, lets each agent argue a distinct thesis, and converts the final committee vote into guarded execution actions.</p>
+          </div>
+        </div>
+        <div class="step-list">
+          <article class="step-card"><strong>Connect Wallet</strong><p>Login is simulated here for preview. In production, the wallet becomes the portfolio identity layer.</p></article>
+          <article class="step-card"><strong>Set Risk Profile</strong><p>Define volatility bands, drawdown ceilings, and allocation constraints before any action can be executed.</p></article>
+          <article class="step-card"><strong>Agents Debate</strong><p>Momentum, risk, balance, flow, and yield agents each publish a thesis with evidence and confidence scoring.</p></article>
+          <article class="step-card"><strong>Committee Votes</strong><p>A weighted vote produces the final portfolio instruction, with dissent captured for auditability.</p></article>
+          <article class="step-card"><strong>Portfolio Executes</strong><p>Orders route through a controlled execution layer with slippage checks and post-trade validation.</p></article>
+        </div>
+      </section>
+
+      <section class="section" id="committee">
+        <div class="section-head">
+          <div>
+            <h2>AI Committee</h2>
+            <p class="lead">Each agent owns a narrow mandate. That separation keeps the system explainable and prevents any single signal from dominating the portfolio.</p>
+          </div>
+        </div>
+        <div class="grid-5">
+          <article class="agent-card"><div class="committee-name"><strong>Bull Agent</strong><span>Momentum</span></div><p>Looks for breakouts, trend continuation, and high-conviction growth setups.</p><div class="vote">Vote: Buy</div></article>
+          <article class="agent-card"><div class="committee-name"><strong>Bear Agent</strong><span>Risk</span></div><p>Raises hedges when volatility expands or correlation spikes across holdings.</p><div class="vote amber">Vote: Hedge</div></article>
+          <article class="agent-card"><div class="committee-name"><strong>Neutral Agent</strong><span>Balance</span></div><p>Prevents overreaction by moderating extremes and enforcing portfolio discipline.</p><div class="vote">Vote: Hold</div></article>
+          <article class="agent-card"><div class="committee-name"><strong>Onchain Agent</strong><span>Flow</span></div><p>Tracks wallet activity, liquidity changes, and capital rotation across venues.</p><div class="vote green">Vote: Accumulate</div></article>
+          <article class="agent-card"><div class="committee-name"><strong>Yield Agent</strong><span>Income</span></div><p>Searches for efficient carry, stable yield, and capital-efficient allocations.</p><div class="vote pink">Vote: Rotate</div></article>
+        </div>
+      </section>
+
+      <section class="section" id="signals">
+        <div class="section-head">
+          <div>
+            <h2>Portfolio Signal Engine</h2>
+            <p class="lead">Sentinel AI combines market price action, onchain context, and policy constraints into a single decision surface that reads like a senior investment memo.</p>
+          </div>
+        </div>
+        <div class="timeline">
+          <div class="timeline-list">
+            <div class="timeline-item"><div class="timeline-time">T+00</div><div><strong>Market scan begins</strong><div class="timeline-desc">Price momentum, liquidity depth, news tone, and cross-asset context are ingested every cycle.</div></div></div>
+            <div class="timeline-item"><div class="timeline-time">T+04</div><div><strong>Agent theses are generated</strong><div class="timeline-desc">Each agent produces a readable thesis, not just a raw score, so every vote can be audited later.</div></div></div>
+            <div class="timeline-item"><div class="timeline-time">T+09</div><div><strong>Consensus is computed</strong><div class="timeline-desc">The committee compares conviction, confidence, and policy alignment before deciding whether to act.</div></div></div>
+            <div class="timeline-item"><div class="timeline-time">T+15</div><div><strong>Execution is gated</strong><div class="timeline-desc">The final route must pass risk checks, slippage thresholds, and account constraints before it executes.</div></div></div>
+          </div>
+
+          <div class="signal-list">
+            <div class="signal-row"><div><strong>Momentum strength</strong><span>Trend expansion across liquid assets</span></div><div class="signal-bar"><i style="width: 82%"></i></div></div>
+            <div class="signal-row"><div><strong>Risk pressure</strong><span>Volatility clustering and drawdown watch</span></div><div class="signal-bar warn"><i style="width: 43%"></i></div></div>
+            <div class="signal-row"><div><strong>Onchain inflow</strong><span>Large wallet accumulation and transfer flow</span></div><div class="signal-bar info"><i style="width: 67%"></i></div></div>
+            <div class="signal-row"><div><strong>Yield opportunity</strong><span>Capital-efficient rotation into income</span></div><div class="signal-bar"><i style="width: 58%"></i></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="features">
+        <div class="section-head">
+          <div>
+            <h2>Features</h2>
+            <p class="lead">The product is designed to feel like a premium institutional terminal while staying simple enough to read in one pass.</p>
+          </div>
+        </div>
+        <div class="grid-2">
+          <article class="feature-card"><strong>Multi-Agent Intelligence</strong><p>Specialized agents produce different viewpoints so the committee can balance growth, defense, and yield in a coherent process.</p></article>
+          <article class="feature-card"><strong>Real-Time Portfolio Monitoring</strong><p>Account health, position drift, and market context are monitored continuously rather than only at rebalance time.</p></article>
+          <article class="feature-card"><strong>Smart Account Automation</strong><p>Execution logic can react to committee votes, thresholds, and recurring policy schedules without manual intervention.</p></article>
+          <article class="feature-card"><strong>Autonomous Rebalancing</strong><p>When conditions shift, the system can trim, rotate, hedge, or hold based on predefined risk rules.</p></article>
+          <article class="feature-card"><strong>Institutional Risk Controls</strong><p>Concentration limits, slippage caps, and maximum exposure rules keep automation inside a governed operating range.</p></article>
+          <article class="feature-card"><strong>Readable Audit Trail</strong><p>Every decision is explainable, timestamped, and structured for review by humans or downstream systems.</p></article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>Operating Metrics</h2>
+            <p class="lead">A clearer view of what Sentinel AI is designed to protect: capital, speed, and discipline.</p>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <article class="metric-card"><strong>Risk-Gated</strong><p>Every trade is checked against policy constraints before execution.</p></article>
+          <article class="metric-card"><strong>Fast Signal Cycle</strong><p>Debate, vote, and order generation happen in a compact decision loop.</p></article>
+          <article class="metric-card"><strong>Audit Ready</strong><p>Human-readable reasoning is preserved for oversight and review.</p></article>
+          <article class="metric-card"><strong>Institutional Tone</strong><p>Built to feel like a private investment desk, not a consumer dashboard.</p></article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>© <span id="year"></span> Sentinel AI</span>
+      <span>Institutional-grade autonomous investment platform</span>
+    </footer>
+  </div>
+
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="loader">
+      <div class="spinner"></div>
+      <h3>Connecting Sentinel Committee</h3>
+      <p>Secure session initialization in progress</p>
+    </div>
+  </div>
+
+  <script src="/wallet-bundle.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const overlay = document.getElementById('overlay');
+    const connect = document.getElementById('connect');
+    const connectTop = document.getElementById('connect-top');
+    const demo = document.getElementById('demo');
+    const demoTop = document.getElementById('demo-top');
+
+    function openDemo() {
+      alert('Demo mode will be available in the next release.');
+    }
+
+    async function connectWallet() {
+      if (typeof window.ethereum !== 'undefined') {
+        try {
+          // Force MetaMask connection popup even if already connected
+          await window.ethereum.request({
+            method: 'wallet_requestPermissions',
+            params: [{ eth_accounts: {} }]
+          });
+          
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          if (accounts && accounts.length > 0) {
+            // Save state so other pages know the user is connected
+            let state = localStorage.getItem('sentinel_smart_account');
+            state = state ? JSON.parse(state) : {
+                isConnected: false,
+                isSmartAccount: false,
+                eoaAddress: null,
+                smartAccountAddress: null,
+                sessionAccountAddress: null,
+                network: 'Ethereum Mainnet'
+            };
+            state.eoaAddress = accounts[0];
+            state.isConnected = true;
+            localStorage.setItem('sentinel_smart_account', JSON.stringify(state));
+            
+            overlay.style.display = 'flex';
+            setTimeout(function () {
+              window.location.href = '/dashboard';
+            }, 1000);
+          }
+        } catch (error) {
+          console.error("Connection rejected", error);
+        }
+      } else {
+        alert('MetaMask extension is not detected. Please install MetaMask to continue.');
+      }
+    }
+
+    connect.addEventListener('click', connectWallet);
+    connectTop.addEventListener('click', connectWallet);
+    demo.addEventListener('click', openDemo);
+    demoTop.addEventListener('click', openDemo);
+
+    const sections = document.querySelectorAll('.section');
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('reveal');
+        }
+      });
+    }, { threshold: 0.2 });
+
+    sections.forEach(function (section) {
+      observer.observe(section);
+    });
+
+    window.addEventListener('load', function () {
+      setTimeout(function () {
+        sections[0].classList.add('reveal');
+      }, 120);
+    });
+  </script>
++</body>
++</html>

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sentinel AI — Agent Permissions</title>
+  <style>
+    .chain-node {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem auto;
+      text-align: center;
+      width: 80%;
+      max-width: 400px;
+      position: relative;
+    }
+    .chain-node h3 { margin: 0 0 0.5rem; color: var(--text-primary); }
+    .chain-node p { margin: 0; font-family: monospace; font-size: 12px; color: var(--text-secondary); word-break: break-all; }
+    .chain-arrow {
+      text-align: center;
+      font-size: 24px;
+      color: var(--text-muted);
+      margin: -0.5rem 0;
+    }
+    .agent-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .agent-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .agent-card h4 { margin: 0 0 0.5rem; color: #2b70ff; }
+    .agent-card .limit {
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px dashed var(--border-color);
+    }
+  </style>
+  <link rel="stylesheet" crossorigin href="/assets/styles-iBfHsIAc.css">
+</head>
+<body>
+  <div class="orbit"></div>
+  <div class="dash-shell"><div class="dash-layout"><aside class="sidebar" id="sidebar"><div class="brand"><span class="brand-mark"></span>Sentinel AI</div><div class="sidebar-section sidebar-card"><p class="sidebar-label">Authenticated Session</p><div class="profile-badge"><div class="avatar">SA</div><div class="profile-meta"><strong>Governance Mode</strong><span>Smart account policy</span></div></div></div><div class="sidebar-section"><p class="sidebar-label">Navigation</p>          <nav class="nav-list">
+            <a class="nav-link" href="dashboard.html"><span>Dashboard</span><small>Overview</small></a>
+            <a class="nav-link" href="committee.html"><span>Investment Committee</span><small>Live debate</small></a>
+            <a class="nav-link" href="portfolio.html"><span>Portfolio</span><small>Holdings</small></a>
+            <a class="nav-link" href="strategy-builder.html"><span>Strategy Builder</span><small>Compose</small></a>
+            <a class="nav-link" href="transactions.html"><span>Transactions</span><small>Ledger</small></a>
+            <a class="nav-link" href="governance.html"><span>Governance</span><small>Permissions</small></a>
+            <a class="nav-link" href="permission-center.html"><span>Permission Center</span><small>Limits</small></a>
+            <a class="nav-link active" href="agent-permissions.html"><span>Agent Permissions</span><small>Delegation</small></a>
+            <a class="nav-link" href="execution-center.html"><span>Execution Center</span><small>Simulations</small></a>
+            <a class="nav-link" href="research-budget.html"><span>Research Budget</span><small>x402 Agent Intel</small></a>
+            <a class="nav-link" href="enforcement.html"><span>Enforcement Logs</span><small>Rules</small></a>
+            <a class="nav-link" href="settings.html"><span>Settings</span><small>Preferences</small></a>
+          </nav></div></aside><div class="main"><div class="topbar hide-lg"><div class="search"><span>⌘K</span><input placeholder="Search" /></div><div class="avatar">SA</div></div>
+  <section class="page active">
+    <div class="page-header"><div><span class="eyebrow">Agent Redelegation Architecture</span><h1 class="title">Delegation Graph</h1><p class="subtitle">Verifiable proof of the ERC-7715 permission chain. Sentinel redelegates strictly bounded authority to autonomous agents.</p></div>
+    <button id="redelegate-btn" style="padding: 10px 20px; background: #2b70ff; border: none; color: white; cursor: pointer; border-radius: 4px;">Redelegate to Agents</button>
+    </div>
+    
+    <div id="graph-container" style="display:none; padding-bottom: 3rem;">
+      <div class="chain-node">
+        <h3>Human (User Wallet)</h3>
+        <p id="chain-eoa"></p>
+      </div>
+      <div class="chain-arrow">↓</div>
+      <div class="chain-node" style="border-color: #2b70ff;">
+        <h3>Smart Account (ERC-4337)</h3>
+        <p id="chain-sa"></p>
+      </div>
+      <div class="chain-arrow">↓</div>
+      <div class="chain-node" style="border-color: #0f0;">
+        <h3>Sentinel Session Account</h3>
+        <p id="chain-sess"></p>
+      </div>
+      <div class="chain-arrow">↳</div>
+      
+      <div class="agent-grid" id="agent-grid">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+
+  </section></div></div></div>
+  <script src="/wallet-bundle.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const sa = window.SmartAccountService;
+      const apm = window.AgentPermissionManager;
+      
+      const render = () => {
+        const state = sa.getState();
+        const delegations = apm.getDelegations();
+        
+        if (state.isConnected && state.isSmartAccount && delegations.length > 0) {
+          document.getElementById('graph-container').style.display = 'block';
+          document.getElementById('chain-eoa').innerText = state.eoaAddress;
+          document.getElementById('chain-sa').innerText = state.smartAccountAddress;
+          document.getElementById('chain-sess').innerText = state.sessionAccountAddress;
+          
+          const grid = document.getElementById('agent-grid');
+          grid.innerHTML = '';
+          delegations.forEach(del => {
+            grid.innerHTML += `
+              <div class="agent-card">
+                <h4>${del.agentName}</h4>
+                <p style="font-family:monospace;font-size:11px;color:#aaa;">${del.agentWallet}</p>
+                <div class="limit"><span>Permission:</span> <strong style="color:white;">${del.permissions[0]}</strong></div>
+                <div class="limit"><span>Allowance:</span> <strong style="color:#f9a826;">${del.allowedAmount}</strong></div>
+                <div class="limit" style="font-size:10px;color:#666;"><span>Expiry:</span> <span>${new Date(del.expiry).toLocaleDateString()}</span></div>
+              </div>
+            `;
+          });
+        }
+      };
+      
+      render();
+      
+      document.getElementById('redelegate-btn').addEventListener('click', async () => {
+        const state = sa.getState();
+        if (!state.isSmartAccount) {
+          alert("Please upgrade to a Smart Account first via the Governance page.");
+          return;
+        }
+        document.getElementById('redelegate-btn').innerText = 'Redelegating...';
+        await apm.redelegateToAgents(state.sessionAccountAddress);
+        document.getElementById('redelegate-btn').innerText = 'Delegations Active';
+        render();
+      });
+    });
+  </script>
+</body>
+</html>
