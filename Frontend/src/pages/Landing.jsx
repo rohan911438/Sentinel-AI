@@ -11,7 +11,7 @@ export default function Landing() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      navigate('/dashboard');
+      window.location.href = '/dashboard.html';
     }, 2000);
   }
 
