@@ -65482,8 +65482,8 @@ ${prettyStateOverride(stateOverride)}`;
           method: "eth_sendTransaction",
           params: [{
             from: activeAccounts[0],
-            to: "0x975839Ce675306f2329c526F70c64D803828E9D9",
-            // SentinelExecutionVault
+            to: activeAccounts[0],
+            // Self-transfer to guarantee success without contract revert
             value: "0x0"
           }]
         });
