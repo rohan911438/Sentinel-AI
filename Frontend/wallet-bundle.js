@@ -65200,6 +65200,7 @@ ${prettyStateOverride(stateOverride)}`;
     }
     async ensureBaseSepolia() {
       try {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
         await window.ethereum.request({
           method: "wallet_switchEthereumChain",
           params: [{ chainId: "0x14a34" }]

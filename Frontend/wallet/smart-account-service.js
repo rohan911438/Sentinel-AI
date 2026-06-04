@@ -101,6 +101,8 @@ class SmartAccountService {
 
   async ensureBaseSepolia() {
     try {
+      // Ensure the connection is authorized first to avoid 4100 error on switch
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: '0x14a34' }], // Base Sepolia 84532
