@@ -1,8 +1,10 @@
 require('dotenv').config({ path: '../.env' });
 const http = require('http');
 const { CommitteeOrchestrator } = require('./committee/committee-orchestrator');
+const { EnforcementEngine, enforcementLogs } = require('./committee/enforcement-engine');
 
 const PORT = 3000;
+let activeDelegations = [];
 
 const server = http.createServer(async (req, res) => {
   // CORS Headers
@@ -16,7 +18,26 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (req.url === '/api/debate' && req.method === 'POST') {
+  if (req.url === '/api/delegation' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        activeDelegations = JSON.parse(body);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, count: activeDelegations.length }));
+      } catch (e) {
+        res.writeHead(400);
+        res.end(JSON.stringify({ error: 'Invalid JSON' }));
+      }
+    });
+  } else if (req.url === '/api/delegation' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(activeDelegations));
+  } else if (req.url === '/api/enforcement/logs' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(enforcementLogs));
+  } else if (req.url === '/api/debate' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => {
       body += chunk.toString();
@@ -29,6 +50,12 @@ const server = http.createServer(async (req, res) => {
         const orchestrator = new CommitteeOrchestrator();
         const result = await orchestrator.runCommittee(inputs);
         
+        // --- PHASE 5: ENFORCEMENT ENGINE ---
+        const engine = new EnforcementEngine();
+        const enforcementResult = engine.validateDecision(result.decision, activeDelegations);
+        result.enforcement = enforcementResult;
+        // -----------------------------------
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(result));
       } catch (error) {

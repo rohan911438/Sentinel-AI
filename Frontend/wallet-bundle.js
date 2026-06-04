@@ -65094,7 +65094,66 @@ ${prettyStateOverride(stateOverride)}`;
       localStorage.removeItem(this.permissionsKey);
     }
   };
+  var AgentPermissionManager = class {
+    constructor() {
+      this.storageKey = "sentinel_agent_delegations";
+    }
+    getDelegations() {
+      const data = localStorage.getItem(this.storageKey);
+      return data ? JSON.parse(data) : [];
+    }
+    async redelegateToAgents(sessionAccountAddress, sessionPrivateKey) {
+      const bullKey = generatePrivateKey();
+      const bullAccount = privateKeyToAccount(bullKey);
+      const yieldKey = generatePrivateKey();
+      const yieldAccount = privateKeyToAccount(yieldKey);
+      const execKey = generatePrivateKey();
+      const execAccount = privateKeyToAccount(execKey);
+      const publicClient = createPublicClient({ chain: sepolia, transport: custom(window.ethereum) });
+      const delegations = [
+        {
+          agentName: "Bull Agent",
+          agentWallet: bullAccount.address,
+          delegationChain: `${sessionAccountAddress} -> ${bullAccount.address}`,
+          permissions: ["Propose Allocation"],
+          allowedAmount: "0 USDC",
+          expiry: new Date(Date.now() + 7 * 24 * 60 * 60 * 1e3).toISOString(),
+          remainingAllowance: "0 USDC"
+        },
+        {
+          agentName: "Yield Agent",
+          agentWallet: yieldAccount.address,
+          delegationChain: `${sessionAccountAddress} -> ${yieldAccount.address}`,
+          permissions: ["Allocate to Lending"],
+          allowedAmount: "20 USDC",
+          expiry: new Date(Date.now() + 7 * 24 * 60 * 60 * 1e3).toISOString(),
+          remainingAllowance: "20 USDC"
+        },
+        {
+          agentName: "Execution Agent",
+          agentWallet: execAccount.address,
+          delegationChain: `${sessionAccountAddress} -> ${execAccount.address}`,
+          permissions: ["Execute Approved Trades"],
+          allowedAmount: "100 USDC",
+          expiry: new Date(Date.now() + 1 * 24 * 60 * 60 * 1e3).toISOString(),
+          remainingAllowance: "100 USDC"
+        }
+      ];
+      localStorage.setItem(this.storageKey, JSON.stringify(delegations));
+      try {
+        await fetch("http://localhost:3000/api/delegation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(delegations)
+        });
+      } catch (e) {
+        console.warn("Could not sync delegations to backend", e);
+      }
+      return delegations;
+    }
+  };
   window.SmartAccountService = new SmartAccountService();
+  window.AgentPermissionManager = new AgentPermissionManager();
 })();
 /*! Bundled license information:
 
