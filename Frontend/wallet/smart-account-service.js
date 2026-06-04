@@ -1,5 +1,5 @@
 import { createPublicClient, createWalletClient, custom, parseUnits } from 'viem';
-import { sepolia } from 'viem/chains';
+import { baseSepolia } from 'viem/chains';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { Implementation, toMetaMaskSmartAccount } from '@metamask/smart-accounts-kit';
 import { erc7715ProviderActions } from '@metamask/smart-accounts-kit/actions';
@@ -18,7 +18,7 @@ class SmartAccountService {
       eoaAddress: null,
       smartAccountAddress: null,
       sessionAccountAddress: null,
-      network: 'Sepolia'
+      network: 'Base Sepolia'
     };
   }
 
@@ -37,6 +37,28 @@ class SmartAccountService {
           });
           
           const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          
+          // Switch to Base Sepolia
+          try {
+            await window.ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: '0x14a34' }], // Base Sepolia 84532
+            });
+          } catch (switchError) {
+            if (switchError.code === 4902) {
+              await window.ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [{
+                  chainId: '0x14a34',
+                  chainName: 'Base Sepolia',
+                  rpcUrls: ['https://sepolia.base.org'],
+                  nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                  blockExplorerUrls: ['https://sepolia-explorer.base.org']
+                }],
+              });
+            }
+          }
+
           if (accounts && accounts.length > 0) {
             const state = this.getState();
             state.eoaAddress = accounts[0];
@@ -64,7 +86,7 @@ class SmartAccountService {
       if (!state.isConnected) throw new Error("Wallet not connected");
 
       const publicClient = createPublicClient({
-        chain: sepolia,
+        chain: baseSepolia,
         transport: custom(window.ethereum)
       });
 
@@ -116,7 +138,7 @@ class SmartAccountService {
 
       const walletClient = createWalletClient({
         account: state.eoaAddress,
-        chain: sepolia,
+        chain: baseSepolia,
         transport: custom(window.ethereum)
       }).extend(erc7715ProviderActions());
 
@@ -128,13 +150,13 @@ class SmartAccountService {
       try {
         // Trigger the real MetaMask Flask approval screen
         const grantedPermissions = await walletClient.requestExecutionPermissions([{
-          chainId: sepolia.id,
+          chainId: baseSepolia.id,
           expiry,
           to: state.sessionAccountAddress,
           permission: {
             type: 'erc20-token-periodic',
             data: {
-              tokenAddress: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238', // USDC on Sepolia
+              tokenAddress: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238', // USDC on Base Sepolia
               periodAmount: parseUnits(limits.maxDailySpend ? limits.maxDailySpend.toString() : '100', 6),
               periodDuration: 86400, // 1 day
               justification: 'Sentinel AI Execution Agent',
@@ -144,14 +166,15 @@ class SmartAccountService {
         }]);
         contextId = grantedPermissions[0].contextId;
       } catch (err) {
-        console.warn("ERC-7715 failed (Likely not using MetaMask Flask). Falling back to funding transaction...", err);
-        // Fallback: Send a real transaction to "fund" the smart account, proving the wallet popup works!
+        console.warn("ERC-7715 failed. Falling back to simple transaction...", err);
+        // Fallback: Ensure account is requested/authorized to prevent 4100 errors
+        const activeAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         await window.ethereum.request({
           method: 'eth_sendTransaction',
           params: [{
-            from: state.eoaAddress,
+            from: activeAccounts[0],
             to: state.smartAccountAddress,
-            value: '0x38D7EA4C68000', // 0.001 ETH
+            value: '0x0', // 0 ETH to prevent insufficient funds errors
           }],
         });
         contextId = '0xPC_FALLBACK_' + Date.now().toString(16);
@@ -203,7 +226,7 @@ class AgentPermissionManager {
     const execAccount = privateKeyToAccount(execKey);
 
     // Using viem's walletClient to theoretically sign the redelegation context
-    const publicClient = createPublicClient({ chain: sepolia, transport: custom(window.ethereum) });
+    const publicClient = createPublicClient({ chain: baseSepolia, transport: custom(window.ethereum) });
 
     const delegations = [
       {
@@ -385,18 +408,19 @@ class ExecutionAgent {
     let submissionResult;
     try {
       // Force real MetaMask popup for Demo on-chain interaction with SentinelExecutionVault
+      const activeAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       const txHash = await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [{
-          from: state.eoaAddress,
+          from: activeAccounts[0],
           to: "0x975839Ce675306f2329c526F70c64D803828E9D9", // SentinelExecutionVault
           value: "0x0"
         }]
       });
       submissionResult = { taskId: txHash };
     } catch (err) {
-      console.warn("Relayer API send failed or user rejected (Demo Mode Mocking response):", err);
-      submissionResult = { taskId: "0xTASK_" + Date.now().toString(16) };
+      console.warn("User rejected or transaction failed:", err);
+      throw new Error("Transaction failed or was rejected by user.");
     }
 
     const taskId = submissionResult.taskId;

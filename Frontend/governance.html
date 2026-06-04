@@ -38,7 +38,7 @@ window.addEventListener('DOMContentLoaded', () => {
          document.getElementById('sa-type').innerText = 'Smart Account (ERC-4337)';
          document.getElementById('sa-delegation').innerText = 'Session: ' + s.sessionAccountAddress.substring(0,12) + '...';
       }
-      document.getElementById('sa-network').innerText = s.network || 'Sepolia';
+      document.getElementById('sa-network').innerText = s.network || 'Base Sepolia';
     } else {
       document.getElementById('sa-network').innerText = 'Not connected';
     }

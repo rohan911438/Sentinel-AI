@@ -106,7 +106,7 @@
     </div>
   </div></div>
 
-  <script src="/wallet-bundle.js"></script>
+  <script src="/wallet-bundle.js?v=4"></script>
   <script>
     window.addEventListener('DOMContentLoaded', async () => {
       const execAgent = window.ExecutionAgent;
@@ -131,6 +131,11 @@
         `;
       } catch (e) {
         healthDiv.innerHTML = `<span style="color:#f00;">Failed to load relayer capabilities.</span>`;
+      }
+
+      // Clear old mock logs so they don't confuse the UI
+      if (execAgent.getLogs().some(l => l.taskId && l.taskId.startsWith("0xTASK_"))) {
+         localStorage.removeItem(execAgent.logsKey);
       }
 
       // 2. Load Logs
