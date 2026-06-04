@@ -37,6 +37,14 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify({ error: error.message || 'Internal Server Error' }));
       }
     });
+  } else if (req.url === '/api/smart-account/status' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      isConnected: true,
+      isSmartAccount: true,
+      smartAccountAddress: "0xSA1234567890abcdef1234567890abcdef123456",
+      sessionAccountAddress: "0xSESSabcdef1234567890abcdef1234567890abcd"
+    }));
   } else {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     res.end('Not Found');

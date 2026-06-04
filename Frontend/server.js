@@ -32,6 +32,10 @@ const routes = {
   '/transactions.html': 'transactions.html',
   '/governance': 'governance.html',
   '/governance.html': 'governance.html',
+  '/permission-center': 'permission-center.html',
+  '/permission-center.html': 'permission-center.html',
+  '/agent-permissions': 'agent-permissions.html',
+  '/agent-permissions.html': 'agent-permissions.html',
   '/settings': 'settings.html',
   '/settings.html': 'settings.html'
 }

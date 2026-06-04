@@ -858,11 +858,42 @@
       alert('Demo mode will be available in the next release.');
     }
 
-    function connectWallet() {
-      overlay.style.display = 'flex';
-      setTimeout(function () {
-        window.location.href = '/dashboard';
-      }, 2000);
+    async function connectWallet() {
+      if (typeof window.ethereum !== 'undefined') {
+        try {
+          // Force MetaMask connection popup even if already connected
+          await window.ethereum.request({
+            method: 'wallet_requestPermissions',
+            params: [{ eth_accounts: {} }]
+          });
+          
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          if (accounts && accounts.length > 0) {
+            // Save state so other pages know the user is connected
+            let state = localStorage.getItem('sentinel_smart_account');
+            state = state ? JSON.parse(state) : {
+                isConnected: false,
+                isSmartAccount: false,
+                eoaAddress: null,
+                smartAccountAddress: null,
+                sessionAccountAddress: null,
+                network: 'Ethereum Mainnet'
+            };
+            state.eoaAddress = accounts[0];
+            state.isConnected = true;
+            localStorage.setItem('sentinel_smart_account', JSON.stringify(state));
+            
+            overlay.style.display = 'flex';
+            setTimeout(function () {
+              window.location.href = '/dashboard';
+            }, 1000);
+          }
+        } catch (error) {
+          console.error("Connection rejected", error);
+        }
+      } else {
+        alert('MetaMask extension is not detected. Please install MetaMask to continue.');
+      }
     }
 
     connect.addEventListener('click', connectWallet);
