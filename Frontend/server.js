@@ -38,6 +38,8 @@ const routes = {
   '/agent-permissions.html': 'agent-permissions.html',
   '/enforcement': 'enforcement.html',
   '/enforcement.html': 'enforcement.html',
+  '/execution-center': 'execution-center.html',
+  '/execution-center.html': 'execution-center.html',
   '/settings': 'settings.html',
   '/settings.html': 'settings.html'
 }

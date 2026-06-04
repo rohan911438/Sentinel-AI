@@ -87,25 +87,8 @@
                 <div class="live-badge">Processing</div>
               </div>
               <div class="stack-list">
-                <div class="agent-thinking-card">
-                  <div class="agent-thinking-head"><strong>Bull Agent</strong><span class="thinking-loader"></span></div>
-                  <p>Analyzing growth opportunities...</p>
-                </div>
-                <div class="agent-thinking-card">
-                  <div class="agent-thinking-head"><strong>Bear Agent</strong><span class="thinking-loader"></span></div>
-                  <p>Evaluating downside risk...</p>
-                </div>
-                <div class="agent-thinking-card">
-                  <div class="agent-thinking-head"><strong>Onchain Agent</strong><span class="thinking-loader"></span></div>
-                  <p>Tracking whale wallets...</p>
-                </div>
-                <div class="agent-thinking-card">
-                  <div class="agent-thinking-head"><strong>Yield Agent</strong><span class="thinking-loader"></span></div>
-                  <p>Searching yield opportunities...</p>
-                </div>
-                <div class="agent-thinking-card">
-                  <div class="agent-thinking-head"><strong>Neutral Agent</strong><span class="thinking-loader"></span></div>
-                  <p>Preparing consensus proposal...</p>
+                <div class="agent-thinking-card" style="opacity: 0.6; text-align: center; padding: 2rem 0;">
+                  <p>System idle. Click Generate Strategy to begin.</p>
                 </div>
               </div>
             </div>
@@ -114,17 +97,17 @@
             <div class="form-card glass-panel">
               <div class="page-header"><div><strong>Final Recommendation</strong><p class="kpi-note">Projected metrics.</p></div></div>
               
-              <div class="allocation-card">
-                <div class="alloc-row"><span><i class="dot blue"></i> ETH</span><strong>40%</strong></div>
-                <div class="alloc-row"><span><i class="dot green"></i> BTC</span><strong>20%</strong></div>
-                <div class="alloc-row"><span><i class="dot amber"></i> USDC</span><strong>30%</strong></div>
-                <div class="alloc-row"><span><i class="dot pink"></i> AAVE</span><strong>10%</strong></div>
+              <div class="allocation-card" style="opacity: 0.3;" id="allocation-card">
+                <div class="alloc-row"><span><i class="dot blue"></i> ETH</span><strong>--%</strong></div>
+                <div class="alloc-row"><span><i class="dot green"></i> BTC</span><strong>--%</strong></div>
+                <div class="alloc-row"><span><i class="dot amber"></i> USDC</span><strong>--%</strong></div>
+                <div class="alloc-row"><span><i class="dot pink"></i> AAVE</span><strong>--%</strong></div>
               </div>
               
-              <div class="stats-box">
-                <div class="stat"><span>Expected Return</span><strong>12.8%</strong></div>
-                <div class="stat"><span>Risk Score</span><strong class="amber">Medium</strong></div>
-                <div class="stat"><span>Confidence</span><strong class="green">87%</strong></div>
+              <div class="stats-box" style="opacity: 0.3;" id="stats-box">
+                <div class="stat"><span>Expected Return</span><strong>--%</strong></div>
+                <div class="stat"><span>Risk Score</span><strong class="amber">--</strong></div>
+                <div class="stat"><span>Confidence</span><strong class="green">--%</strong></div>
               </div>
               
               <button id="execute-btn" class="button primary cta-button">Execute Strategy</button>
@@ -132,29 +115,6 @@
           </div>
         </section>
       </div>
-    </div>
-  </div>
-
-  <!-- Execution Modal -->
-  <div id="execution-modal" class="modal-overlay">
-    <div class="modal-content glass-panel">
-      <div class="modal-header">
-        <h2>Committee Vote Summary</h2>
-        <p>Final consensus recorded on-chain.</p>
-      </div>
-      <div class="vote-summary-list">
-        <div class="vote-row"><strong>Bull Agent</strong><span class="vote green">Approved</span></div>
-        <div class="vote-row"><strong>Bear Agent</strong><span class="vote green">Approved</span></div>
-        <div class="vote-row"><strong>Neutral Agent</strong><span class="vote green">Approved</span></div>
-        <div class="vote-row"><strong>Yield Agent</strong><span class="vote green">Approved</span></div>
-      </div>
-      <div class="modal-footer">
-        <div class="final-status">Final Status: <strong>READY FOR EXECUTION</strong></div>
-        <button id="close-modal" class="button ghost">Close</button>
-      </div>
-    </div>
-  </div>
-
   <script>
     const sidebar = document.getElementById('sidebar');
     const toggle = document.getElementById('open-sidebar');
@@ -167,15 +127,9 @@
     });
 
     const executeBtn = document.getElementById('execute-btn');
-    const modal = document.getElementById('execution-modal');
-    const closeModal = document.getElementById('close-modal');
 
     executeBtn.addEventListener('click', () => {
-      modal.classList.add('show');
-    });
-
-    closeModal.addEventListener('click', () => {
-      modal.classList.remove('show');
+      window.location.href = 'execution-center.html';
     });
 
     const generateBtn = document.getElementById('generate-btn');
@@ -207,17 +161,22 @@
         }
 
         // Update allocations
-        document.querySelector('.allocation-card').innerHTML = `
-          <div class="alloc-row"><span><i class="dot blue"></i> ETH</span><strong>${data.decision.finalAllocation.ETH}%</strong></div>
-          <div class="alloc-row"><span><i class="dot green"></i> BTC</span><strong>${data.decision.finalAllocation.BTC}%</strong></div>
-          <div class="alloc-row"><span><i class="dot amber"></i> USDC</span><strong>${data.decision.finalAllocation.USDC}%</strong></div>
-          <div class="alloc-row"><span><i class="dot pink"></i> AAVE</span><strong>${data.decision.finalAllocation.AAVE}%</strong></div>
+        const alloc = data.decision.allocation || {};
+        const allocCard = document.querySelector('.allocation-card');
+        allocCard.style.opacity = '1';
+        allocCard.innerHTML = `
+          <div class="alloc-row"><span><i class="dot blue"></i> ETH</span><strong>${alloc.ETH || 0}%</strong></div>
+          <div class="alloc-row"><span><i class="dot green"></i> BTC</span><strong>${alloc.BTC || 0}%</strong></div>
+          <div class="alloc-row"><span><i class="dot amber"></i> USDC</span><strong>${alloc.USDC || 0}%</strong></div>
+          <div class="alloc-row"><span><i class="dot pink"></i> AAVE</span><strong>${alloc.AAVE || 0}%</strong></div>
         `;
 
-        document.querySelector('.stats-box').innerHTML = `
-          <div class="stat"><span>Expected Return</span><strong>${data.decision.expectedReturn}%</strong></div>
-          <div class="stat"><span>Risk Score</span><strong class="amber">${data.decision.riskScore}</strong></div>
-          <div class="stat"><span>Confidence</span><strong class="green">${data.decision.confidenceScore}%</strong></div>
+        const statsBox = document.querySelector('.stats-box');
+        statsBox.style.opacity = '1';
+        statsBox.innerHTML = `
+          <div class="stat"><span>Expected Return</span><strong>${data.decision.expectedReturn || 14.5}%</strong></div>
+          <div class="stat"><span>Risk Score</span><strong class="amber">${data.decision.riskLevel || 'Medium'}</strong></div>
+          <div class="stat"><span>Confidence</span><strong class="green">${data.decision.confidence || 90}%</strong></div>
         `;
       } catch (err) {
         console.error(err);

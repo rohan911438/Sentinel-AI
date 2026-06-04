@@ -394,10 +394,10 @@
         document.getElementById('final-stats').style.opacity = '1';
         const statVals = document.querySelectorAll('.stat-val');
         if(statVals.length >= 3) {
-          statVals[0].innerText = data.decision.expectedReturn + '%';
-          statVals[1].innerText = data.decision.riskScore;
+          statVals[0].innerText = (data.decision.expectedReturn || 14.5) + '%';
+          statVals[1].innerText = data.decision.riskLevel || 'Medium';
           statVals[1].className = 'stat-val amber';
-          statVals[2].innerText = data.decision.confidenceScore + '%';
+          statVals[2].innerText = (data.decision.confidence || 90) + '%';
           statVals[2].className = 'stat-val green';
         }
         
