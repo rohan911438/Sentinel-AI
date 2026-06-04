@@ -1,22 +1,28 @@
+const { generateVeniceResponse } = require('../services/venice-service');
+
 class BullAgent {
-  async generateProposal(inputs) {
-    return {
-      agent: 'Bull Agent',
-      recommendation: 'Increase ETH allocation to 60%.',
-      confidence: 85,
-      reasoning: 'Strong momentum and technical breakouts suggest heavy growth weighting.',
-      proposedAllocation: { ETH: 60, BTC: 20, USDC: 10, AAVE: 10 }
-    };
+  constructor() {
+    this.systemPrompt = `You are the Bull Agent, an Aggressive Portfolio Manager.
+Your Objective: Maximize returns.
+Your Behavior: Seek upside. Favor growth assets. Identify strong narratives.
+Your Output: Bullish recommendations.
+Always look for the highest growth potential and be optimistic about the market.`;
   }
 
-  async reviseProposal(rejectionReason) {
-    return {
-      agent: 'Bull Agent',
-      recommendation: 'Reduce ETH to 40%. Increase USDC to 30%.',
-      confidence: 90,
-      reasoning: `Acknowledging risk constraints: ${rejectionReason}. Scaling back aggressive growth.`,
-      proposedAllocation: { ETH: 40, BTC: 20, USDC: 30, AAVE: 10 }
-    };
+  async generateProposal(inputs, committeeContext, conversationHistory) {
+    const userPrompt = `Generate a bullish investment proposal based on these inputs: ${JSON.stringify(inputs)}. Focus on maximum growth.`;
+    return await generateVeniceResponse(this.systemPrompt, userPrompt, committeeContext, conversationHistory);
+  }
+
+  async reviseProposal(criticism, inputs, committeeContext, conversationHistory) {
+    const userPrompt = `The Bear Agent has criticized the proposal with the following reasoning: "${criticism}". 
+Please revise the bullish proposal to address these concerns while still aiming to maximize returns. Inputs: ${JSON.stringify(inputs)}`;
+    return await generateVeniceResponse(this.systemPrompt, userPrompt, committeeContext, conversationHistory);
+  }
+
+  async vote(committeeContext, conversationHistory) {
+    const userPrompt = `Review the final compromise portfolio and provide your vote. Output your vote as the recommendation (e.g. "VOTE: YES" or "VOTE: NO").`;
+    return await generateVeniceResponse(this.systemPrompt, userPrompt, committeeContext, conversationHistory);
   }
 }
 

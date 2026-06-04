@@ -1,3 +1,4 @@
+require('dotenv').config({ path: '../.env' });
 const http = require('http');
 const { CommitteeOrchestrator } = require('./committee/committee-orchestrator');
 
@@ -26,14 +27,14 @@ const server = http.createServer(async (req, res) => {
         const inputs = body ? JSON.parse(body) : { investmentAmount: 500000, riskLevel: 'moderate', investmentHorizon: '6 months' };
         
         const orchestrator = new CommitteeOrchestrator();
-        const { decision, timeline } = await orchestrator.runCommittee(inputs);
+        const result = await orchestrator.runCommittee(inputs);
         
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ decision, timeline }));
+        res.end(JSON.stringify(result));
       } catch (error) {
         console.error('Error executing debate:', error);
         res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Internal Server Error' }));
+        res.end(JSON.stringify({ error: error.message || 'Internal Server Error' }));
       }
     });
   } else {
