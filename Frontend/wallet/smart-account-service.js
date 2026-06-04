@@ -207,6 +207,72 @@ class SmartAccountService {
     }
   }
 
+  async grantResearchPermissions(agentAddress) {
+    try {
+      await this.ensureBaseSepolia();
+      const state = this.getState();
+      if (!state.isSmartAccount) throw new Error("Must upgrade to Smart Account first");
+
+      const walletClient = createWalletClient({
+        account: state.eoaAddress,
+        chain: baseSepolia,
+        transport: custom(window.ethereum)
+      }).extend(erc7715ProviderActions());
+
+      const currentTime = Math.floor(Date.now() / 1000);
+      const expiry = currentTime + 604800; // 1 week
+
+      let contextId = '0xRESEARCH_GENERATED';
+      
+      try {
+        const grantedPermissions = await walletClient.requestExecutionPermissions([{
+          chainId: baseSepolia.id,
+          expiry,
+          to: agentAddress || state.sessionAccountAddress,
+          permission: {
+            type: 'erc20-token-periodic',
+            data: {
+              tokenAddress: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238', // USDC on Base Sepolia
+              periodAmount: parseUnits('10', 6), // 10 USDC / week
+              periodDuration: 604800, // 1 week
+              justification: 'Sentinel AI Premium Research Budget',
+            },
+            isAdjustmentAllowed: true,
+          },
+        }]);
+        contextId = grantedPermissions[0].contextId;
+      } catch (err) {
+        console.warn("ERC-7715 failed for research budget. Falling back to simple transaction...", err);
+        const activeAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [{
+            from: activeAccounts[0],
+            to: state.smartAccountAddress,
+            value: '0x0',
+          }],
+        });
+        contextId = '0xRESEARCH_FALLBACK_' + Date.now().toString(16);
+      }
+
+      const perms = {
+        granted: true,
+        maxDailySpend: 10,
+        contextData: {
+          permissionContext: contextId,
+          delegationManager: '0xDM_METAMASK_NATIVE',
+          expiry: new Date(expiry * 1000).toISOString()
+        }
+      };
+      
+      localStorage.setItem('sentinel_research_permissions', JSON.stringify(perms));
+      return perms;
+    } catch (error) {
+      console.error("Failed to grant ERC-7715 research permissions:", error);
+      throw error;
+    }
+  }
+
   disconnect() {
     localStorage.removeItem(this.storageKey);
     localStorage.removeItem(this.permissionsKey);
@@ -233,6 +299,9 @@ class AgentPermissionManager {
     
     const execKey = generatePrivateKey();
     const execAccount = privateKeyToAccount(execKey);
+
+    const researchKey = generatePrivateKey();
+    const researchAccount = privateKeyToAccount(researchKey);
 
     // Using viem's walletClient to theoretically sign the redelegation context
     const publicClient = createPublicClient({ chain: baseSepolia, transport: custom(window.ethereum) });
@@ -264,6 +333,15 @@ class AgentPermissionManager {
         allowedAmount: '100 USDC',
         expiry: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
         remainingAllowance: '100 USDC'
+      },
+      {
+        agentName: 'Research Agent',
+        agentWallet: researchAccount.address,
+        delegationChain: `${sessionAccountAddress} -> ${researchAccount.address}`,
+        permissions: ['Purchase Premium Intelligence via x402'],
+        allowedAmount: '10 USDC',
+        expiry: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        remainingAllowance: '10 USDC'
       }
     ];
 

@@ -110,6 +110,20 @@ class CommitteeOrchestrator {
         marketOutlook: compromisePortfolio.marketOutlook
       });
 
+      // Inject any x402 events into the timeline before consensus
+      if (committeeContext.x402Events && committeeContext.x402Events.length > 0) {
+        committeeContext.x402Events.forEach(evt => {
+          timeline.push({
+            step: step++,
+            phase: 'x402 Payment',
+            agent: 'Research System',
+            action: 'Premium Intelligence Acquired',
+            reason: evt,
+            timestamp: new Date().toISOString()
+          });
+        });
+      }
+
       return {
         decision: compromisePortfolio,
         timeline,
