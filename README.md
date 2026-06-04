@@ -226,3 +226,10 @@ This README is intended as the product and architecture blueprint for the hackat
 ---
 
 Created for the Sentinel AI: Autonomous Investment Committee concept.
+
+---
+
+## Deployed Contracts (Sepolia)
+- **SentinelPolicyManager**: `0x33491e1b1fbD9F1d757a0ABd1a2930D189d4990E`
+- **SentinelAgentRegistry**: `0xfc8C9aeF0085Cee0EEB4110C9E681ECd8c105930`
+- **SentinelExecutionVault**: `0x975839Ce675306f2329c526F70c64D803828E9D9`

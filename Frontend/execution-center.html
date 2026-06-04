@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sentinel AI — Execution Center</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .widget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+    .widget { background: var(--bg-surface-elevated); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); }
+    .widget h3 { margin: 0 0 1rem 0; font-size: 14px; color: #aaa; }
+    .kpi { font-size: 24px; color: white; margin-bottom: 0.5rem; }
+    .kpi-label { font-size: 12px; color: #888; }
+    
+    .timeline { display: flex; justify-content: space-between; align-items: center; margin: 2rem 0; padding: 2rem; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border-color); }
+    .step { text-align: center; flex: 1; position: relative; }
+    .step::after { content: ''; position: absolute; top: 15px; left: 60%; right: -40%; height: 2px; background: #333; z-index: 1; }
+    .step:last-child::after { display: none; }
+    .circle { width: 32px; height: 32px; border-radius: 50%; background: #333; color: #888; line-height: 32px; margin: 0 auto 0.5rem; position: relative; z-index: 2; font-weight: bold; }
+    .step.active .circle { background: #2b70ff; color: white; }
+    .step.completed .circle { background: #0f0; color: #000; }
+    .step-label { font-size: 11px; color: #aaa; font-weight: 500; }
+    
+    .btn { padding: 10px 16px; background: #2b70ff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+    .btn:disabled { background: #444; color: #888; cursor: not-allowed; }
+    
+    .log-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .log-table th, .log-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 13px; }
+    .log-table th { color: var(--text-muted); text-transform: uppercase; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <div class="orbit"></div>
+  <div class="dash-shell"><div class="dash-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><span class="brand-mark"></span>Sentinel AI</div>
+      <div class="sidebar-section"><p class="sidebar-label">Navigation</p>
+        <nav class="nav-list">
+          <a class="nav-link" href="dashboard.html"><span>Dashboard</span></a>
+          <a class="nav-link" href="committee.html"><span>Investment Committee</span></a>
+          <a class="nav-link" href="portfolio.html"><span>Portfolio</span></a>
+          <a class="nav-link" href="governance.html"><span>Governance</span></a>
+          <a class="nav-link" href="permission-center.html"><span>Permission Center</span></a>
+          <a class="nav-link" href="agent-permissions.html"><span>Agent Permissions</span></a>
+          <a class="nav-link" href="enforcement.html"><span>Enforcement Logs</span></a>
+          <a class="nav-link active" href="execution-center.html"><span>Execution Center</span></a>
+        </nav>
+      </div>
+    </aside>
+    
+    <div class="main">
+      <section class="page active">
+        <div class="page-header">
+          <div>
+            <span class="eyebrow">1Shot Public Relayer</span>
+            <h1 class="title">Execution Center</h1>
+            <p class="subtitle">Autonomous execution layer utilizing EIP-7710 gas abstraction and JSON-RPC lifecycle polling.</p>
+          </div>
+          <div class="portfolio-pill" style="background:#1a1a1a;border:1px solid #333;"><strong>Demo Mode</strong><span style="color:#f9a826;">Safe</span></div>
+        </div>
+        
+        <div class="widget-grid">
+          <div class="widget">
+            <h3>1Shot Relayer Health</h3>
+            <div id="health-status">Loading capabilities...</div>
+          </div>
+          <div class="widget">
+            <h3>Execution Review</h3>
+            <div style="margin-bottom:1rem;">
+              <span class="kpi-label">Pending Execution</span>
+              <div class="kpi" id="review-task">Simulated Trade: Send 10 USDC (Demo)</div>
+            </div>
+            <button id="execute-btn" class="btn">Simulate & Execute</button>
+            <div id="review-error" style="color:#f00; font-size:12px; margin-top:0.5rem; display:none;"></div>
+          </div>
+        </div>
+
+        <div class="timeline">
+          <div class="step" id="step-1"><div class="circle">1</div><div class="step-label">Committee Approved</div></div>
+          <div class="step" id="step-2"><div class="circle">2</div><div class="step-label">Validation Passed</div></div>
+          <div class="step" id="step-3"><div class="circle">3</div><div class="step-label">Fee Estimated</div></div>
+          <div class="step" id="step-4"><div class="circle">4</div><div class="step-label">Submitted</div></div>
+          <div class="step" id="step-5"><div class="circle">5</div><div class="step-label">Confirmed</div></div>
+        </div>
+
+        <div class="panel">
+          <div class="page-header"><div><strong>Execution Logs</strong></div></div>
+          <table class="log-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Task ID</th>
+                <th>Status</th>
+                <th>Est. Fee</th>
+                <th>Token</th>
+                <th>Reference</th>
+              </tr>
+            </thead>
+            <tbody id="exec-logs">
+              <tr><td colspan="6" style="text-align:center;">No executions yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </section>
+    </div>
+  </div></div>
+
+  <script src="/wallet-bundle.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+      const execAgent = window.ExecutionAgent;
+      const relayer = window.OneShotRelayerService;
+      const sa = window.SmartAccountService;
+      const apm = window.AgentPermissionManager;
+
+      // 1. Load Relayer Health
+      const healthDiv = document.getElementById('health-status');
+      try {
+        const caps = await relayer.getCapabilities();
+        const token = caps.supportedTokens?.[0]?.symbol || "USDC";
+        const targetAddress = caps.targetAddress || "0xDE1E6A7E00000000000000000000000000000000";
+        const minFee = caps.minFee || "1000000";
+        healthDiv.innerHTML = `
+          <div style="font-size:12px;color:#888;">
+            <span style="color:#0f0;">● Connected</span> to 1Shot API<br><br>
+            <b>Target Delegation:</b> <span style="font-family:monospace;">${targetAddress.substring(0,12)}...</span><br>
+            <b>Accepted Payment:</b> ${token}<br>
+            <b>Minimum Fee:</b> ${minFee} (atoms)
+          </div>
+        `;
+      } catch (e) {
+        healthDiv.innerHTML = `<span style="color:#f00;">Failed to load relayer capabilities.</span>`;
+      }
+
+      // 2. Load Logs
+      const renderLogs = () => {
+        const logs = execAgent.getLogs();
+        const tbody = document.getElementById('exec-logs');
+        if (logs.length > 0) {
+          tbody.innerHTML = logs.map(l => `
+            <tr>
+              <td>${new Date(l.timestamp).toLocaleTimeString()}</td>
+              <td style="font-family:monospace;font-size:11px;">${l.taskId}</td>
+              <td style="color:${l.status === 'Confirmed' ? '#0f0' : (l.status === 'Failed' ? '#f00' : '#f9a826')}">${l.status}</td>
+              <td>${l.estimatedFee}</td>
+              <td>${l.paymentToken}</td>
+              <td>${l.decisionReference}</td>
+            </tr>
+          `).join('');
+        }
+      };
+      renderLogs();
+
+      // 3. Execution Logic
+      const updateTimeline = (step) => {
+        for (let i = 1; i <= 5; i++) {
+          const el = document.getElementById('step-' + i);
+          if (i < step) { el.classList.add('completed'); el.classList.remove('active'); }
+          else if (i === step) { el.classList.add('active'); el.classList.remove('completed'); }
+          else { el.classList.remove('active', 'completed'); }
+        }
+      };
+
+      document.getElementById('execute-btn').addEventListener('click', async () => {
+        const btn = document.getElementById('execute-btn');
+        const errDiv = document.getElementById('review-error');
+        btn.disabled = true;
+        errDiv.style.display = 'none';
+
+        // Fake Committee Decision for Demo
+        const demoDecision = {
+          recommendation: "EXECUTE_TRADE",
+          allocation: [{ asset: "USDC", amount: 10 }],
+          riskLevel: 30
+        };
+
+        try {
+          updateTimeline(1); // Approved
+          await new Promise(r => setTimeout(r, 800));
+
+          // Simulate Validation passing & Submission
+          updateTimeline(2); // Validation
+          
+          const state = sa.getState();
+          const delegations = apm.getDelegations();
+
+          if (!state.isSmartAccount) throw new Error("Smart Account not connected.");
+
+          // This internal call handles Fee Estimation -> Submission natively
+          const { taskId, estimation } = await execAgent.executeDecision(demoDecision, state, delegations);
+          
+          updateTimeline(3); // Estimated
+          document.getElementById('review-task').innerHTML = `Est. Fee: ${estimation.requiredPaymentAmount} <span style="font-size:12px;">(Simulated)</span>`;
+          
+          await new Promise(r => setTimeout(r, 1000));
+          updateTimeline(4); // Submitted
+          renderLogs();
+
+          // Start Lifecycle Tracking
+          execAgent.trackTask(taskId, (status) => {
+            if (status === 'Confirmed') {
+              updateTimeline(5);
+              btn.disabled = false;
+              renderLogs();
+            } else if (status === 'Failed' || status === 'Rejected' || status === 'Reverted') {
+              errDiv.style.display = 'block';
+              errDiv.innerText = "Execution failed on-chain.";
+              btn.disabled = false;
+              renderLogs();
+            }
+          });
+
+        } catch (e) {
+          errDiv.style.display = 'block';
+          errDiv.innerText = "Validation Failed: " + e.message;
+          btn.disabled = false;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

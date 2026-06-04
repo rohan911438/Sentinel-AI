@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sentinel AI — Enforcement Logs</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .log-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .log-table th, .log-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+    .log-table th { color: var(--text-muted); font-weight: 500; font-size: 12px; text-transform: uppercase; }
+    .status-APPROVED { color: #0f0; }
+    .status-REJECTED { color: #f00; }
+    .status-ESCALATED { color: #f9a826; }
+    .log-reason { font-family: monospace; font-size: 12px; color: #aaa; word-break: break-word; }
+  </style>
+</head>
+<body>
+  <div class="orbit"></div>
+  <div class="dash-shell"><div class="dash-layout"><aside class="sidebar" id="sidebar"><div class="brand"><span class="brand-mark"></span>Sentinel AI</div><div class="sidebar-section sidebar-card"><p class="sidebar-label">Authenticated Session</p><div class="profile-badge"><div class="avatar">SA</div><div class="profile-meta"><strong>Governance Mode</strong><span>Smart account policy</span></div></div></div><div class="sidebar-section"><p class="sidebar-label">Navigation</p><nav class="nav-list"><a class="nav-link" href="dashboard.html"><span>Dashboard</span></a><a class="nav-link" href="committee.html"><span>Investment Committee</span></a><a class="nav-link" href="portfolio.html"><span>Portfolio</span></a><a class="nav-link" href="governance.html"><span>Governance</span></a><a class="nav-link" href="permission-center.html"><span>Permission Center</span></a><a class="nav-link" href="agent-permissions.html"><span>Agent Permissions</span></a><a class="nav-link active" href="enforcement.html"><span>Enforcement Logs</span></a></nav></div></aside><div class="main"><div class="topbar hide-lg"><div class="search"><span>⌘K</span><input placeholder="Search" /></div><div class="avatar">SA</div></div>
+  <section class="page active">
+    <div class="page-header"><div><span class="eyebrow">On-Chain Policy Engine</span><h1 class="title">Enforcement Logs</h1><p class="subtitle">Every action proposed by the committee is validated against user-defined Smart Account boundaries.</p></div></div>
+    
+    <div class="panel">
+      <div class="page-header"><div><strong>Execution Trace</strong><p class="kpi-note">Real-time validation against ERC-7715 permissions</p></div>
+      <button id="refresh-btn" style="padding: 6px 12px; background: #2b70ff; border: none; color: white; cursor: pointer; border-radius: 4px;">Refresh</button>
+      </div>
+      
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Agent</th>
+            <th>Action</th>
+            <th>Status</th>
+            <th>Reasoning</th>
+          </tr>
+        </thead>
+        <tbody id="log-body">
+          <tr><td colspan="5" style="text-align:center;">Loading logs...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </section></div></div></div>
+  
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const loadLogs = async () => {
+        const body = document.getElementById('log-body');
+        try {
+          const res = await fetch('http://localhost:3000/api/enforcement/logs');
+          const logs = await res.json();
+          
+          if (logs.length === 0) {
+            body.innerHTML = '<tr><td colspan="5" style="text-align:center;">No enforcement logs yet. Run a committee debate first!</td></tr>';
+            return;
+          }
+          
+          body.innerHTML = '';
+          logs.forEach(log => {
+            const date = new Date(log.timestamp).toLocaleTimeString();
+            body.innerHTML += `
+              <tr>
+                <td style="color:#888;">${date}</td>
+                <td style="font-weight:bold;">${log.agent}</td>
+                <td>${log.action}</td>
+                <td class="status-${log.status}"><strong>${log.status}</strong></td>
+                <td class="log-reason">${log.reason}</td>
+              </tr>
+            `;
+          });
+        } catch (e) {
+          body.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Failed to fetch logs. Is the backend running?</td></tr>';
+        }
+      };
+      
+      document.getElementById('refresh-btn').addEventListener('click', loadLogs);
+      loadLogs();
+    });
+  </script>
+</body>
+</html>
