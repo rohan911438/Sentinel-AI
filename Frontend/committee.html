@@ -338,6 +338,10 @@
           body: JSON.stringify({ investmentAmount: 500000, riskLevel: 'moderate', investmentHorizon: '6 months' })
         });
         const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Server error occurred');
+        }
         
         for (const event of data.timeline) {
           let agentId = 'orchestrator';
@@ -381,10 +385,10 @@
         document.getElementById('final-allocation').style.opacity = '1';
         const allocVals = document.querySelectorAll('.alloc-val');
         if(allocVals.length >= 4) {
-          allocVals[0].innerText = data.decision.finalAllocation.ETH + '%';
-          allocVals[1].innerText = data.decision.finalAllocation.BTC + '%';
-          allocVals[2].innerText = data.decision.finalAllocation.USDC + '%';
-          allocVals[3].innerText = data.decision.finalAllocation.AAVE + '%';
+          allocVals[0].innerText = (data.decision.allocation.ETH || 0) + '%';
+          allocVals[1].innerText = (data.decision.allocation.BTC || 0) + '%';
+          allocVals[2].innerText = (data.decision.allocation.USDC || 0) + '%';
+          allocVals[3].innerText = (data.decision.allocation.AAVE || 0) + '%';
         }
         
         document.getElementById('final-stats').style.opacity = '1';
@@ -399,7 +403,8 @@
         
       } catch (err) {
         console.error(err);
-        ticker.innerText = 'Error connecting to Debate Engine.';
+        ticker.innerText = err.message || 'Error connecting to Debate Engine.';
+        ticker.style.color = 'red';
       } finally {
         if(btn1) btn1.disabled = false;
         if(btn2) btn2.disabled = false;
