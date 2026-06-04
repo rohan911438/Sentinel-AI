@@ -31,8 +31,8 @@
       </div>
     </div>
   </section></div></div></div>
-  <script src="/wallet/smart-account-service.js"></script>
-  <script>
+  <script src="/wallet-bundle.js"></script>
+<script>
     window.addEventListener('DOMContentLoaded', () => {
       const sa = window.SmartAccountService;
       const render = () => {
@@ -52,12 +52,22 @@
       document.getElementById('grant-btn').addEventListener('click', async () => {
         const btn = document.getElementById('grant-btn');
         btn.innerText = 'MetaMask Open...';
-        await sa.grantPermissions({
-          maxPortfolio: document.getElementById('max-portfolio').value,
-          maxDailySpend: document.getElementById('max-daily-spend').value,
-          maxTrade: document.getElementById('max-trade').value
-        });
-        render();
+        try {
+          await sa.grantPermissions({
+            maxPortfolio: document.getElementById('max-portfolio').value,
+            maxDailySpend: document.getElementById('max-daily-spend').value,
+            maxTrade: document.getElementById('max-trade').value
+          });
+          render();
+        } catch (e) {
+          console.error(e);
+          btn.innerText = 'Grant Permissions (MetaMask)';
+          if (e.code === 4001) {
+             alert("Transaction rejected by user.");
+          } else {
+             alert("Error granting permissions: " + e.message);
+          }
+        }
       });
     });
   </script>
