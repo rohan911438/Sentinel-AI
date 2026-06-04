@@ -65148,26 +65148,7 @@ ${prettyStateOverride(stateOverride)}`;
               params: [{ eth_accounts: {} }]
             });
             const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-            try {
-              await window.ethereum.request({
-                method: "wallet_switchEthereumChain",
-                params: [{ chainId: "0x14a34" }]
-                // Base Sepolia 84532
-              });
-            } catch (switchError) {
-              if (switchError.code === 4902) {
-                await window.ethereum.request({
-                  method: "wallet_addEthereumChain",
-                  params: [{
-                    chainId: "0x14a34",
-                    chainName: "Base Sepolia",
-                    rpcUrls: ["https://sepolia.base.org"],
-                    nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
-                    blockExplorerUrls: ["https://sepolia-explorer.base.org"]
-                  }]
-                });
-              }
-            }
+            await this.ensureBaseSepolia();
             if (accounts && accounts.length > 0) {
               const state = this.getState();
               state.eoaAddress = accounts[0];
@@ -65217,6 +65198,30 @@ ${prettyStateOverride(stateOverride)}`;
         throw error;
       }
     }
+    async ensureBaseSepolia() {
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x14a34" }]
+          // Base Sepolia 84532
+        });
+      } catch (switchError) {
+        if (switchError.code === 4902) {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [{
+              chainId: "0x14a34",
+              chainName: "Base Sepolia",
+              rpcUrls: ["https://sepolia.base.org"],
+              nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+              blockExplorerUrls: ["https://sepolia-explorer.base.org"]
+            }]
+          });
+        } else {
+          throw switchError;
+        }
+      }
+    }
     getPermissions() {
       const data = localStorage.getItem(this.permissionsKey);
       return data ? JSON.parse(data) : {
@@ -65232,6 +65237,7 @@ ${prettyStateOverride(stateOverride)}`;
     // 3. Real ERC-7715 Permission Request
     async grantPermissions(limits) {
       try {
+        await this.ensureBaseSepolia();
         const state = this.getState();
         if (!state.isSmartAccount) throw new Error("Must upgrade to Smart Account first");
         const walletClient = createWalletClient({
@@ -65421,6 +65427,7 @@ ${prettyStateOverride(stateOverride)}`;
       localStorage.setItem(this.logsKey, JSON.stringify(logs));
     }
     async executeDecision(decision, state, delegations) {
+      await window.SmartAccountService.ensureBaseSepolia();
       const execAgent = delegations.find((d) => d.agentName === "Execution Agent");
       if (!execAgent) throw new Error("Execution Agent delegation missing.");
       if (/* @__PURE__ */ new Date() > new Date(execAgent.expiry)) {
