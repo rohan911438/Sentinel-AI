@@ -117,36 +117,43 @@ contract SentinelExecutionVault is Ownable, Pausable, ReentrancyGuard {
         // For hackathon purposes, the Smart Account or Execution Agent acts as the caller.
         
         // 1. Validate Committee Consensus
-        (bool consensusValid, string memory consensusReason) = policyManager.validateCommitteeConsensus(committeeApprovals);
-        if (!consensusValid) {
-            emit ExecutionRejected(executingAgent, token, amount, consensusReason);
-            revert(consensusReason);
+        {
+            (bool valid1, string memory reason1) = policyManager.validateCommitteeConsensus(committeeApprovals);
+            if (!valid1) {
+                emit ExecutionRejected(executingAgent, token, amount, reason1);
+                revert(reason1);
+            }
         }
 
         // 2. Validate Token Policy
-        (bool tokenValid, string memory tokenReason) = policyManager.validateToken(token);
-        if (!tokenValid) {
-            emit ExecutionRejected(executingAgent, token, amount, tokenReason);
-            revert(tokenReason);
+        {
+            (bool valid2, string memory reason2) = policyManager.validateToken(token);
+            if (!valid2) {
+                emit ExecutionRejected(executingAgent, token, amount, reason2);
+                revert(reason2);
+            }
         }
 
         // 3. Validate Trade Amount Policy
-        (bool amountValid, string memory amountReason) = policyManager.validateTradeAmount(amount);
-        if (!amountValid) {
-            emit ExecutionRejected(executingAgent, token, amount, amountReason);
-            revert(amountReason);
+        {
+            (bool valid3, string memory reason3) = policyManager.validateTradeAmount(amount);
+            if (!valid3) {
+                emit ExecutionRejected(executingAgent, token, amount, reason3);
+                revert(reason3);
+            }
         }
 
         // 4. Validate Agent Authorization (Registry)
-        (bool authValid, string memory authReason) = agentRegistry.checkAuthorization(executingAgent, amount);
-        if (!authValid) {
-            emit ExecutionRejected(executingAgent, token, amount, authReason);
-            revert(authReason);
+        {
+            (bool valid4, string memory reason4) = agentRegistry.checkAuthorization(executingAgent, amount);
+            if (!valid4) {
+                emit ExecutionRejected(executingAgent, token, amount, reason4);
+                revert(reason4);
+            }
         }
 
         // 5. Record the execution in the policy manager
-        bytes32 decisionBytes = keccak256(abi.encodePacked(decisionId));
-        policyManager.recordTradeExecution(decisionBytes, token, amount);
+        policyManager.recordTradeExecution(keccak256(abi.encodePacked(decisionId)), token, amount);
 
         // 6. Record Audit Trail
         executionHistory.push(ExecutionRecord({

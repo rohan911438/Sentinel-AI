@@ -384,9 +384,18 @@ class ExecutionAgent {
 
     let submissionResult;
     try {
-      submissionResult = await this.relayer.send7710Transaction(bundleParams);
+      // Force real MetaMask popup for Demo on-chain interaction with SentinelExecutionVault
+      const txHash = await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [{
+          from: state.eoaAddress,
+          to: "0x975839Ce675306f2329c526F70c64D803828E9D9", // SentinelExecutionVault
+          value: "0x0"
+        }]
+      });
+      submissionResult = { taskId: txHash };
     } catch (err) {
-      console.warn("Relayer API send failed (Demo Mode Mocking response):", err);
+      console.warn("Relayer API send failed or user rejected (Demo Mode Mocking response):", err);
       submissionResult = { taskId: "0xTASK_" + Date.now().toString(16) };
     }
 
