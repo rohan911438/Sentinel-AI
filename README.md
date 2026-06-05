@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="https://via.placeholder.com/150" alt="Sentinel AI Logo">
-</p>
-
 <h1 align="center">Sentinel AI</h1>
 
 <p align="center">
@@ -14,13 +10,9 @@
   <a href="#smart-contracts">Smart Contracts</a>
 </p>
 
-<p align="center">
-  <img src="https://via.placeholder.com/800x400" alt="Sentinel AI Hero Image">
-</p>
-
 ---
 
-## 🛑 Problem Statement
+## Problem Statement
 
 Modern crypto portfolio management suffers from several critical challenges:
 * **Fragmented Tooling:** Users juggle multiple platforms for research, execution, and monitoring.
@@ -29,11 +21,11 @@ Modern crypto portfolio management suffers from several critical challenges:
 * **Permission Management:** Granular control over what external entities can do is virtually nonexistent.
 * **Constant Monitoring Requirements:** The 24/7 nature of crypto markets creates high cognitive load and burnout.
 
-## 💡 Solution
+## Solution
 
 **Sentinel AI** introduces an autonomous onchain investment committee. Instead of relying on a single fallible bot, Sentinel AI leverages a team of specialized AI agents that research, debate, validate, and execute investment decisions. Through MetaMask Smart Accounts and ERC-7715 permissions, users delegate scoped authority to this committee, allowing it to act on their behalf while strictly adhering to user-defined risk parameters and spending limits.
 
-## ⏳ Why Sentinel AI is the Need of the Hour
+## Why Sentinel AI is the Need of the Hour
 
 As the crypto market matures, the velocity and complexity of information are scaling exponentially:
 1. **AI Agents are the New Users:** We are shifting from human-centric to agent-centric blockchains. The infrastructure to safely delegate funds to AI is required *today*.
@@ -41,7 +33,7 @@ As the crypto market matures, the velocity and complexity of information are sca
 3. **The Rise of Intent-Based Execution:** Users want outcomes (e.g., "maximize safe yield"), not the friction of gas tokens, bridging, and manual signing. Integrating 1Shot API abstracts away this friction, matching the UX expectations of Web2.
 4. **Data Monopolization:** High-quality alpha is hidden behind paywalls. Sentinel AI’s use of x402 allows autonomous agents to stream micropayments for premium intelligence, leveling the playing field for retail investors.
 
-## 🚀 Why Sentinel AI is Different
+## Why Sentinel AI is Different
 
 Unlike existing solutions, Sentinel AI employs a **Multi-Agent Consensus** model:
 
@@ -56,9 +48,9 @@ A multi-agent committee is mathematically and practically superior because it re
 
 ---
 
-## 🏆 Hackathon Track Coverage
+## Hackathon Track Coverage
 
-### 🥇 Best Agent
+### Best Agent
 Sentinel AI is not just one agent, but a cohesive committee of specialized intelligence:
 * **Bull Agent:** Searches for upside potential, market catalysts, and momentum.
 * **Bear Agent:** Identifies risks, bearish divergences, and fundamental flaws.
@@ -67,7 +59,7 @@ Sentinel AI is not just one agent, but a cohesive committee of specialized intel
 * **Neutral Agent:** Synthesizes the debate and proposes the final action.
 * **Execution Agent:** Formats transactions and interacts with the 1Shot Relayer.
 
-### 🥈 Best A2A Coordination
+### Best A2A Coordination
 Our Agent-to-Agent (A2A) architecture is the core of Sentinel AI:
 * **Structured Communication:** Agents communicate via a shared context window.
 * **Debate Workflow:** Proposals are actively challenged by opposing agents.
@@ -75,7 +67,7 @@ Our Agent-to-Agent (A2A) architecture is the core of Sentinel AI:
 * **Decision Propagation:** Verified decisions are securely passed to the Execution Agent.
 * **Redelegation Model:** Authority is seamlessly passed down the agent hierarchy securely.
 
-### 🥉 Best x402 + ERC-7710
+### Best x402 + ERC-7710
 We push the boundaries of smart accounts and machine economies:
 * **Smart Accounts:** Built natively on MetaMask's advanced account abstractions.
 * **ERC-7715 Permissions:** Users grant the committee strict spending and interaction limits.
@@ -83,14 +75,14 @@ We push the boundaries of smart accounts and machine economies:
 * **Research Budget:** The committee has an autonomous sub-budget.
 * **Autonomous Premium Data:** Agents use x402 to autonomously pay for paywalled APIs and premium intelligence reports needed for their debates.
 
-### 🏅 Best Use of 1Shot Permissionless Relayer
+### Best Use of 1Shot Permissionless Relayer
 We completely abstract gas and transaction complexities:
 * **Stablecoin Gas Payments:** The system pays for its autonomous actions using stablecoins.
 * **Relayed Execution:** The Execution Agent submits formatted payloads to 1Shot.
 * **Transaction Lifecycle:** Fully monitored and logged by the onchain agent.
 * **Permissioned Execution Model:** 1Shot only accepts transactions that have cleared the ERC-7715 policy limits.
 
-### 🎖️ Best Use of Venice AI
+### Best Use of Venice AI
 Venice AI powers the brain of Sentinel AI. We utilize Venice AI's uncensored, high-performance inference for:
 * Agent reasoning and persona maintenance.
 * Generating rigorous, multi-turn debates between the Bull and Bear agents.
@@ -99,7 +91,7 @@ Venice AI powers the brain of Sentinel AI. We utilize Venice AI's uncensored, hi
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```mermaid
 graph TD
@@ -109,7 +101,7 @@ graph TD
     Perms -->|Creates| Sess[Session Account]
     Sess -->|ERC-7710| Redel[Redelegation]
     
-    subgraph AI Layer
+    subgraph AI_Layer [AI Layer]
         MAC[Multi-Agent Committee]
         MAC -->|Debates| Venice[Venice AI Inference]
         Venice -->|Consensus| MAC
@@ -123,7 +115,7 @@ graph TD
     Exec -->|Payload| Relayer[1Shot Relayer]
     Relayer -->|Executes| Chain[(Blockchain)]
     
-    subgraph Contracts
+    subgraph Contracts_Layer [Contracts]
         Chain --> SPM[SentinelPolicyManager]
         Chain --> SAR[SentinelAgentRegistry]
         Chain --> SEV[SentinelExecutionVault]
@@ -132,44 +124,44 @@ graph TD
 
 ---
 
-## 🤖 Multi-Agent Architecture
+## Multi-Agent Architecture
 
-### 📈 Bull Agent
+### Bull Agent
 * **Role:** The eternal optimist. Focuses on growth, momentum, and catalysts.
 * **Inputs:** Social sentiment, TVL growth, bullish news, technical breakouts.
 * **Outputs:** Investment proposals, counter-arguments to the Bear.
 * **Decisions:** "Buy", "Hold", "Increase Position".
 * **Interactions:** Actively debates the Bear Agent; requests data from the Onchain Agent.
 
-### 📉 Bear Agent
+### Bear Agent
 * **Role:** The risk manager. Focuses on downside protection and systemic risks.
 * **Inputs:** Macro headwinds, bearish divergences, unlock schedules, FUD.
 * **Outputs:** Risk warnings, proposals to short or hedge, counter-arguments to the Bull.
 * **Decisions:** "Sell", "Hedge", "Reduce Risk".
 * **Interactions:** Challenges the Bull Agent's proposals.
 
-### 🚜 Yield Agent
+### Yield Agent
 * **Role:** The farmer. Seeks optimal, safe yield opportunities.
 * **Inputs:** Protocol APYs, impermanent loss metrics, contract audits.
 * **Outputs:** Staking/LP proposals.
 * **Decisions:** "Stake", "Unstake", "Rebalance LP".
 * **Interactions:** Collaborates with the Onchain Agent to verify yields.
 
-### 🔍 Onchain Agent
+### Onchain Agent
 * **Role:** The data scientist. Deals purely in blockchain facts.
 * **Inputs:** Mempool data, DEX volumes, wallet tracking, contract ABIs.
 * **Outputs:** Factual data reports, security alerts.
 * **Decisions:** "Safe to interact", "Malicious contract detected".
 * **Interactions:** Provides factual grounding for the Bull, Bear, and Yield agents.
 
-### ⚖️ Neutral Agent
+### Neutral Agent
 * **Role:** The judge. Synthesizes arguments and makes the final call.
 * **Inputs:** Debate transcripts from Bull/Bear, data from Onchain/Yield.
 * **Outputs:** Final Consensus Document, Execution Payload Draft.
 * **Decisions:** "Approve Proposal", "Reject Proposal".
 * **Interactions:** Mediates the debate; signals the Execution Agent.
 
-### ⚡ Execution Agent
+### Execution Agent
 * **Role:** The operator. Translates consensus into blockchain state changes.
 * **Inputs:** Consensus Document, ABI parameters.
 * **Outputs:** Signed UserOperations or Relayer Payloads.
@@ -178,19 +170,19 @@ graph TD
 
 ---
 
-## 🔄 A2A Coordination Workflow
+## A2A Coordination Workflow
 
 ```mermaid
 sequenceDiagram
-    participant U as User Request
-    participant R as Agent Research
-    participant D as Agent Debate
-    participant C as Consensus
-    participant V as Risk Validation
-    participant E as Execution
+    participant U as User
+    participant R as Research Agent
+    participant D as Debate Engine
+    participant C as Consensus Engine
+    participant V as Risk Validator
+    participant E as Execution Agent
     participant B as Blockchain
     
-    U->>R: Initiate Strategy ($1000, Moderate Risk)
+    U->>R: Initiate Strategy Request
     R->>D: Provide Market Context
     Note over D: Bull vs Bear Argumentation
     D->>D: Counter Arguments Generated
@@ -203,7 +195,7 @@ sequenceDiagram
 
 ---
 
-## 🦊 MetaMask Smart Accounts Integration
+## MetaMask Smart Accounts Integration
 
 Sentinel AI leverages the cutting edge of Account Abstraction via MetaMask:
 * **Smart Account Creation:** Users deploy a modular smart account seamlessly.
@@ -214,7 +206,7 @@ Sentinel AI leverages the cutting edge of Account Abstraction via MetaMask:
 
 ---
 
-## 🔐 ERC-7715 Advanced Permissions
+## ERC-7715 Advanced Permissions
 
 Security is paramount. Sentinel AI uses ERC-7715 to enforce:
 * **Permission Grants:** Cryptographically verifiable rulesets.
@@ -224,7 +216,7 @@ Security is paramount. Sentinel AI uses ERC-7715 to enforce:
 
 ---
 
-## 🤝 ERC-7710 Redelegation
+## ERC-7710 Redelegation
 
 Sentinel AI uses advanced redelegation:
 * **Agent Permission Delegation:** The user delegates authority to the Sentinel Hub, which redelegates specific tasks to individual agents (e.g., the Yield Agent gets staking authority, but not trading authority).
@@ -234,7 +226,7 @@ Sentinel AI uses advanced redelegation:
 
 ---
 
-## 💳 x402 Autonomous Payments
+## x402 Autonomous Payments
 
 AI needs data. Sentinel AI gives agents a wallet:
 * **Agent-Owned Research Budget:** The committee has a designated balance for operations.
@@ -244,7 +236,7 @@ AI needs data. Sentinel AI gives agents a wallet:
 
 ---
 
-## 🎯 1Shot Permissionless Relayer
+## 1Shot Permissionless Relayer
 
 Execution is frictionless:
 * **Gas Abstraction:** Users and agents never worry about native gas tokens.
@@ -254,21 +246,33 @@ Execution is frictionless:
 
 ---
 
-## 📜 Smart Contracts
+## Smart Contracts
 
-### `SentinelPolicyManager`
+The Sentinel AI infrastructure relies on a set of core smart contracts deployed on the **Base Sepolia Testnet**.
+
+| Contract Name | Description | Base Sepolia Address | Verification Link |
+| :--- | :--- | :--- | :--- |
+| **SentinelPolicyManager** | Stores and validates ERC-7715 rules and user-defined risk parameters. | `0x0000000000000000000000000000000000000000` | [View on Basescan](https://sepolia.basescan.org/) |
+| **SentinelAgentRegistry** | Whitelists and manages authorized agent session keys. | `0x0000000000000000000000000000000000000000` | [View on Basescan](https://sepolia.basescan.org/) |
+| **SentinelExecutionVault** | Holds trading capital isolated from the main holdings, secured by policy limits. | `0x0000000000000000000000000000000000000000` | [View on Basescan](https://sepolia.basescan.org/) |
+
+*(Note: Replace the `0x00...` addresses with your actual deployed contract addresses).*
+
+### Contract Details
+
+**SentinelPolicyManager**
 * **Purpose:** Stores and validates user-defined risk parameters and ERC-7715 rules.
 * **Security Controls:** Only modifiable by the root MetaMask wallet owner.
 * **Events:** Emits logs for every policy update and violation attempt.
 * **Ownership Model:** ERC-4337 compliant owner structure.
 
-### `SentinelAgentRegistry`
+**SentinelAgentRegistry**
 * **Purpose:** Whitelists authorized agent session keys.
 * **Security Controls:** Can revoke an agent's access instantly.
 * **Events:** `AgentAdded`, `AgentRevoked`.
 * **Ownership Model:** Governed by the main Smart Account.
 
-### `SentinelExecutionVault`
+**SentinelExecutionVault**
 * **Purpose:** Holds the trading capital isolated from the user's main holdings.
 * **Security Controls:** Hardcoded integration with `SentinelPolicyManager`.
 * **Events:** `TradeExecuted`, `YieldHarvested`.
@@ -276,7 +280,7 @@ Execution is frictionless:
 
 ---
 
-## 🎬 Workflow Example
+## Workflow Example
 
 **Scenario:** User invests $1000 with a "Moderate Risk" profile.
 
@@ -292,7 +296,7 @@ Execution is frictionless:
 
 ---
 
-## 🛡️ Security Model
+## Security Model
 
 Sentinel AI is designed with defense-in-depth:
 * **Policy Controls:** Hardcoded logic prevents malicious or hallucinated agent actions.
@@ -303,7 +307,7 @@ Sentinel AI is designed with defense-in-depth:
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 **Frontend:**
 * Next.js
@@ -319,6 +323,7 @@ Sentinel AI is designed with defense-in-depth:
 * ERC-7715 (Advanced Permissions)
 * ERC-7710 (Delegation)
 * 1Shot API
+* Base Sepolia Testnet
 
 **AI Layer:**
 * Venice AI (Inference & Reasoning)
@@ -332,7 +337,7 @@ Sentinel AI is designed with defense-in-depth:
 
 ---
 
-## 📊 Competitive Analysis
+## Competitive Analysis
 
 | Feature | Sentinel AI | Traditional Bots | TradingView Alerts | Portfolio Trackers |
 | :--- | :--- | :--- | :--- | :--- |
@@ -345,7 +350,7 @@ Sentinel AI is designed with defense-in-depth:
 
 ---
 
-## 🗺️ Future Roadmap
+## Future Roadmap
 
 * **Q3 2024:** Cross-chain execution capabilities across EVM L2s.
 * **Q4 2024:** Institutional strategies and multi-wallet aggregated management.
@@ -354,7 +359,7 @@ Sentinel AI is designed with defense-in-depth:
 
 ---
 
-## ⚙️ Installation Guide
+## Installation Guide
 
 ```bash
 # Clone the repository
@@ -376,11 +381,11 @@ npm run dev
 
 ---
 
-## 🚀 Deployment Guide
+## Deployment Guide
 
 1. Deploy the Smart Contracts:
    ```bash
-   npx hardhat run scripts/deploy.ts --network <your-network>
+   npx hardhat run scripts/deploy.ts --network base-sepolia
    ```
 2. Build the Frontend:
    ```bash
@@ -391,14 +396,14 @@ npm run dev
 
 ---
 
-## 👥 Team
+## Team
 
 **BROTHERHOOD**
 * **Rohan Kumar** - Solo Developer, AI/Web3 Architect
 
 ---
 
-## 🙏 Acknowledgements
+## Acknowledgements
 
 * **MetaMask** for pioneering Account Abstraction and Smart Accounts.
 * **1Shot API** for seamless relayer infrastructure.
