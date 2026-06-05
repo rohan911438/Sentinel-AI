@@ -245,11 +245,11 @@ Execution is frictionless:
 
 The Sentinel AI infrastructure relies on a set of core smart contracts deployed on the **Base Sepolia Testnet**.
 
-| Contract Name | Description | Base Sepolia Deployment Tx | Verification Link |
+| Contract Name | Description | Base Sepolia Address | Verification Link |
 | :--- | :--- | :--- | :--- |
-| **SentinelPolicyManager** | Stores and validates ERC-7715 rules and user-defined risk parameters. | `0xd6c446f...3af6f8` | [View on Basescan](https://sepolia.basescan.org/tx/0xd6c446f5e384e7c160a42e11d51c749e30307cbe6b34da4aec0b86d3c93af6f8) |
-| **SentinelAgentRegistry** | Whitelists and manages authorized agent session keys. | `0xae58cab...be964c` | [View on Basescan](https://sepolia.basescan.org/tx/0xae58cab2f764141cc4bddbaf19aea4a21038470b847ee89095436c6143be964c) |
-| **SentinelExecutionVault** | Holds trading capital isolated from the main holdings, secured by policy limits. | `0x0401238...b1c8b9` | [View on Basescan](https://sepolia.basescan.org/tx/0x040123885bdbd83c73c03f425df15760a50e34c6d17276fe85398f7d94b1c8b9) |
+| **SentinelPolicyManager** | Stores and validates ERC-7715 rules and user-defined risk parameters. | `0x33491e1b1fbd9f1d757a0abd1a2930d189d4990e` | [View on Basescan](https://sepolia.basescan.org/address/0x33491e1b1fbd9f1d757a0abd1a2930d189d4990e) |
+| **SentinelAgentRegistry** | Whitelists and manages authorized agent session keys. | `0xfc8c9aef0085cee0eeb4110c9e681ecd8c105930` | [View on Basescan](https://sepolia.basescan.org/address/0xfc8c9aef0085cee0eeb4110c9e681ecd8c105930) |
+| **SentinelExecutionVault** | Holds trading capital isolated from the main holdings, secured by policy limits. | `0x975839ce675306f2329c526f70c64d803828e9d9` | [View on Basescan](https://sepolia.basescan.org/address/0x975839ce675306f2329c526f70c64d803828e9d9) |
 
 *(Deployed by: `0x31eC82d5ece89a40aD934F84Fa279Ff30E209f50`)*
 
