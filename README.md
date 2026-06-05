@@ -95,31 +95,26 @@ Venice AI powers the brain of Sentinel AI. We utilize Venice AI's uncensored, hi
 
 ```mermaid
 graph TD
-    User([User]) -->|Configures| Wallet[MetaMask Wallet]
-    Wallet -->|Deploys/Controls| SA[Smart Account]
+    User[User] -->|Configures| Wallet[MetaMask Wallet]
+    Wallet -->|Deploys| SA[Smart Account]
     SA -->|Grants| Perms[ERC-7715 Permissions]
     Perms -->|Creates| Sess[Session Account]
     Sess -->|ERC-7710| Redel[Redelegation]
     
-    subgraph AI_Layer [AI Layer]
-        MAC[Multi-Agent Committee]
-        MAC -->|Debates| Venice[Venice AI Inference]
-        Venice -->|Consensus| MAC
-        MAC -->|x402| Prem[Premium Intelligence Layer]
-        MAC -->|Proposes| Cons[Consensus Layer]
-    end
+    Redel --> MAC[Multi-Agent Committee]
+    MAC -->|Debates| Venice[Venice AI]
+    Venice -->|Consensus| MAC
+    MAC -->|x402| Prem[Intelligence Layer]
+    MAC -->|Proposes| Cons[Consensus Layer]
     
-    Redel --> MAC
     Cons -->|Validates| PE[Policy Engine]
     PE -->|Approves| Exec[Execution Layer]
     Exec -->|Payload| Relayer[1Shot Relayer]
-    Relayer -->|Executes| Chain[(Blockchain)]
+    Relayer -->|Executes| Chain[Blockchain]
     
-    subgraph Contracts_Layer [Contracts]
-        Chain --> SPM[SentinelPolicyManager]
-        Chain --> SAR[SentinelAgentRegistry]
-        Chain --> SEV[SentinelExecutionVault]
-    end
+    Chain --> SPM[SentinelPolicyManager]
+    Chain --> SAR[SentinelAgentRegistry]
+    Chain --> SEV[SentinelExecutionVault]
 ```
 
 ---
@@ -174,23 +169,23 @@ graph TD
 
 ```mermaid
 sequenceDiagram
-    participant U as User
-    participant R as Research Agent
-    participant D as Debate Engine
-    participant C as Consensus Engine
-    participant V as Risk Validator
-    participant E as Execution Agent
-    participant B as Blockchain
+    participant User
+    participant ResearchAgent
+    participant DebateEngine
+    participant ConsensusEngine
+    participant RiskValidator
+    participant ExecutionAgent
+    participant Blockchain
     
-    U->>R: Initiate Strategy Request
-    R->>D: Provide Market Context
-    Note over D: Bull vs Bear Argumentation
-    D->>D: Counter Arguments Generated
-    D->>C: Submit Debate Transcript
-    C->>V: Neutral Agent Proposes Action
-    V->>E: ERC-7715 Policy Check Passed
-    E->>B: 1Shot Relayer Execution
-    B-->>U: Success Notification
+    User->>ResearchAgent: Initiate Strategy Request
+    ResearchAgent->>DebateEngine: Provide Market Context
+    Note over DebateEngine: Bull vs Bear Argumentation
+    DebateEngine->>DebateEngine: Counter Arguments Generated
+    DebateEngine->>ConsensusEngine: Submit Debate Transcript
+    ConsensusEngine->>RiskValidator: Neutral Agent Proposes Action
+    RiskValidator->>ExecutionAgent: ERC-7715 Policy Check Passed
+    ExecutionAgent->>Blockchain: 1Shot Relayer Execution
+    Blockchain-->>User: Success Notification
 ```
 
 ---
