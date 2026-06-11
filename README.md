@@ -100,6 +100,14 @@ Some of our latest tweets:
 - https://x.com/Roan0i/status/2065057435916927109?s=20
 - https://x.com/Roan0i/status/2065057438957756514?s=20
 - https://x.com/Roan0i/status/2065057442225172812?s=20
+- https://x.com/Roan0i/status/2065059725503598952?s=20
+- https://x.com/Roan0i/status/2065059729374871651?s=20
+- https://x.com/Roan0i/status/2065059732420002218?s=20
+- https://x.com/Roan0i/status/2065059735758590159?s=20
+
+### Best Feedback
+We have written a detailed blog post providing honest feedback as a builder after shipping a full Multi-Agent Smart Account application.
+You can read our comprehensive feedback here: [Building Sentinel AI: Honest Feedback from a Builder](https://dev.to/roan911/building-sentinel-ai-my-journey-through-the-metamask-smart-accounts-x-1shot-api-x-venice-ai-dev-376d)
 
 ---
 

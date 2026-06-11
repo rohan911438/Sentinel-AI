@@ -136,3 +136,7 @@ This document serves as verification for the "Best Social Media presence" track,
 - https://x.com/Roan0i/status/2065057435916927109?s=20
 - https://x.com/Roan0i/status/2065057438957756514?s=20
 - https://x.com/Roan0i/status/2065057442225172812?s=20
+- https://x.com/Roan0i/status/2065059725503598952?s=20
+- https://x.com/Roan0i/status/2065059729374871651?s=20
+- https://x.com/Roan0i/status/2065059732420002218?s=20
+- https://x.com/Roan0i/status/2065059735758590159?s=20
