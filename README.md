@@ -90,6 +90,11 @@ Venice AI powers the brain of Sentinel AI. We utilize Venice AI's uncensored, hi
 * Deep investment analysis based on real-time data feeds.
 * Autonomous decision support without centralized AI guardrails interfering with financial logic.
 
+### Best Social Media presence
+Rewarding participants who actively share their hackathon journey online. Post about your experience, progress, or project on social platforms for a chance to win.
+We actively shared our journey, demonstrating how MetaMask Advanced Permissions enhanced the user experience.
+Please see the full list of our verification tweets here: [SOCIAL_MEDIA_VERIFICATION.md](./SOCIAL_MEDIA_VERIFICATION.md)
+
 ---
 
 ## System Architecture
