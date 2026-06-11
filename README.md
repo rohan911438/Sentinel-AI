@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://docs.google.com/presentation/d/1Cu2ED94fC9-hXvZVitRDpb99U_3ziv72W07DbeK9KxQ/edit?usp=sharing" target="_blank">Pitch Deck</a> •
   <a href="#live-demo">Live Demo</a> •
-  <a href="#video-demo">Video Demo</a> •
+  <a href="https://youtu.be/SsjmK9SI6ao?si=ZCb1lBUF5swy4D7w" target="_blank">Video Demo</a> •
   <a href="#smart-contracts">Smart Contracts</a>
 </p>
 
