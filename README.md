@@ -95,6 +95,12 @@ Rewarding participants who actively share their hackathon journey online. Post a
 We actively shared our journey, demonstrating how MetaMask Advanced Permissions enhanced the user experience.
 Please see the full list of our verification tweets here: [SOCIAL_MEDIA_VERIFICATION.md](./SOCIAL_MEDIA_VERIFICATION.md)
 
+Some of our latest tweets:
+- https://x.com/Roan0i/status/2065057432913793516?s=20
+- https://x.com/Roan0i/status/2065057435916927109?s=20
+- https://x.com/Roan0i/status/2065057438957756514?s=20
+- https://x.com/Roan0i/status/2065057442225172812?s=20
+
 ---
 
 ## System Architecture
